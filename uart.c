@@ -73,7 +73,7 @@ void UART_putString(uint8_t* buf){
 int main(void){
 
   UART_init();
-  UART_putString((uint8_t*)"write something, i'll repeat it\n");
+  UART_putString((uint8_t*)"write ledon or ledoff\n");
   uint8_t buf[MAX_BUF];
   const uint8_t led=(1<<7);
   DDRB |= led;
