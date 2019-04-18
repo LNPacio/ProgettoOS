@@ -70,12 +70,29 @@ void UART_putString(uint8_t* buf){
   }
 }
 
+void stampaRiepilogo(uint8_t* array){
+	UART_putString((uint8_t*)"\n\nRiepilogo led:\n");
+	int key;
+	for(int i = 0; i<4; i++){
+		char curr = i+48;
+		key=(PINK&array[i])==0; // we extract the bit value of the 6th bit
+		UART_putString((uint8_t*)"led 0");
+		UART_putChar((uint8_t*)curr);
+		if(key){
+			 UART_putString((uint8_t*)", ON\n");
+		 }
+		else UART_putString((uint8_t*)", OFF\n");
+	}
+	UART_putString((uint8_t*)"\nWrite ledon_xx or ledoff_xx\n");
+}
+
+
 #define MAX_BUF 256
 int main(void){
 
   UART_init();
-  UART_putString((uint8_t*)"write ledon_xx or ledoff_xx\n");
-  UART_putString((uint8_t*)"(turned on by default)\n");
+  UART_putString((uint8_t*)"Write ledon_xx or ledoff_xx\n");
+  UART_putString((uint8_t*)"(leds turned on by default)\n");
   uint8_t buf[MAX_BUF];
   
   //
@@ -84,7 +101,16 @@ int main(void){
   const uint8_t mask = (1<<6);
   const uint8_t mask_1 = (1<<7);
   const uint8_t mask_2 = (1<<5);
-
+  const uint8_t mask_3 = (1<<4);
+  
+  uint8_t *array = (uint8_t*) malloc (4*sizeof(uint8_t));
+  array[0]=mask;
+  array[1]=mask_1;
+  array[2]=mask_2;
+  array[3]=mask_3;
+  
+  //OUTPUT
+  
   // we configure the pin as output, clearing the bit 6
   DDRB |= mask;
   PORTB &= ~mask;
@@ -96,6 +122,12 @@ int main(void){
   // we configure the pin as output, clearing the bit 5
   DDRB |= mask_2;
   PORTB &= ~mask_2;
+  
+  // we configure the pin as output, clearing the bit 4
+  DDRB |= mask_3;
+  PORTB &= ~mask_3;
+  
+  //INPUT
   
   // we configure the pin as input, clearing the bit 6
   // we enable pullup resistor on that pin
@@ -112,6 +144,11 @@ int main(void){
   DDRK &= ~mask_2;
   PORTK |= mask_2;
   
+  // we configure the pin as input, clearing the bit 4
+  // we enable pullup resistor on that pin
+  DDRK &= ~mask_3;
+  PORTK |= mask_3;
+  
   while(1) {
     UART_getString(buf);
     char testo[256];
@@ -122,56 +159,70 @@ int main(void){
       testo[i]=carattere(buf[i]);
     }
     
-    
-    if(strncmp(testo,"ledon_00\n",strlen("ledon_00\n"))==0){
-      PORTB &= ~mask;
-      UART_putString((uint8_t*)"led 00 acceso\n");
-      }
-      
-    else if (strncmp(testo,"ledon_01\n",strlen("ledon_01\n"))==0){
-      PORTB &= ~mask_1;
-      UART_putString((uint8_t*)"led 01 acceso\n");
-    }
-    
-    else if (strncmp(testo,"ledon_02\n",strlen("ledon_02\n"))==0){
-      PORTB &= ~mask_2;
-      UART_putString((uint8_t*)"led 02 acceso\n");
-    }
-    
-    else if (strncmp(testo,"ledoff_00\n",strlen("ledoff_00\n"))==0){
-      PORTB |= mask;
-      UART_putString((uint8_t*)"led 00 spento\n");
-      }
-      
-    else if (strncmp(testo,"ledoff_01\n",strlen("ledoff_01\n"))==0){
-      PORTB |= mask_1;
-      UART_putString((uint8_t*)"led 01 spento\n");
-    }
-    
-    else if (strncmp(testo,"ledoff_02\n",strlen("ledoff_02\n"))==0){
-      PORTB |= mask_2;
-      UART_putString((uint8_t*)"led 02 spento\n");
-    }
-    
-    else UART_putString((uint8_t*)"comando non accettato\n ");
+    if(strncmp(testo,"ledon_",strlen("ledon_"))==0){
+		switch (testo[7]){
+			
+			case '0':
+				PORTB &= ~mask;
+				UART_putString((uint8_t*)"accensione led 00...\n");
+				break;
+				
+			case '1':
+				PORTB &= ~mask_1;
+				UART_putString((uint8_t*)"accensione led 01...\n");
+				break;
+			
+			case '2':
+				PORTB &= ~mask_2;
+				UART_putString((uint8_t*)"accensione led 02...\n");
+				break;
+			
+			case '3':
+				PORTB &= ~mask_3;
+				UART_putString((uint8_t*)"accensione led 03...\n");
+				break;
+			
+			default:
+				UART_putString((uint8_t*)"led non esistente\n");
+		}
+	}
+	
+    else if(strncmp(testo,"ledoff_",strlen("ledoff_"))==0){
+		switch (testo[8]){
+			
+			case '0':
+				PORTB |= mask;
+				UART_putString((uint8_t*)"spegnimento led 00...\n");
+				break;
+				
+			case '1':
+				PORTB |= mask_1;
+				UART_putString((uint8_t*)"spegnimento led 01...\n");
+				break;
+			
+			case '2':
+				PORTB |= mask_2;
+				UART_putString((uint8_t*)"spegnimento led 02...\n");
+				break;
+				
+			case '3':
+				PORTB |= mask_3;
+				UART_putString((uint8_t*)"spegnimento led 03...\n");
+				break;
+			
+			default:
+				UART_putString((uint8_t*)"led non esistente\n");
+			}
+	}
+	else UART_putString((uint8_t*)"comando non accettato\n ");
 		
+    _delay_ms(500); // from delay.h, wait0.5 sec
+    
+    stampaRiepilogo(array);
+    
+    _delay_ms(500); // from delay.h, wait 0.5 sec
     
     UART_putString((uint8_t*)"\n\n");
-    
-    _delay_ms(1000); // from delay.h, wait 1 sec
-    
-    int key=(PINK&mask)==0; // we extract the bit value of the 6th bit
-    if(key) UART_putString((uint8_t*)"led 00, 1\n");
-    else UART_putString((uint8_t*)"led 00, 0\n");
-    
-    int key_1=(PINK&mask_1)==0; // we extract the bit value of the 7th bit
-    if(key_1) UART_putString((uint8_t*)"led 01, 1\n");
-    else UART_putString((uint8_t*)"led 01, 0\n");
-    
-    int key_2=(PINK&mask_2)==0; // we extract the bit value of the 5th bit
-    if(key_2) UART_putString((uint8_t*)"led 02, 1\n");
-    else UART_putString((uint8_t*)"led 02, 0\n");
-    _delay_ms(1000); // from delay.h, wait 1 sec
 
   }
 }
