@@ -47,10 +47,10 @@ int shell_query_channels(char **args){
 }
 int shell_set_channel_value(char **args){
   if (args[1] == NULL) {
-    fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME BOOLEAN_VALUE \n");
+    fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_0_TO_100 \n");
   } else {
     if (chdir(args[1]) != 1) {
-      perror("shell: expected argument to \"set_channel_value\" SWITCH_NAME BOOLEAN_VALUE \n");
+      perror("shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_0_TO_100 \n");
     }
   }
   return 1;
@@ -225,7 +225,7 @@ void shell_loop(void)
   int status;
 
   do {
-    printf("> ");
+    printf("smart_house ");
     line = shell_read_line();
     args = shell_split_line(line);
     status = shell_execute(args);
