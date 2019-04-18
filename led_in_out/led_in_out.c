@@ -81,8 +81,9 @@ int main(void){
   //
   //Inizio cambiamenti
   //
-  const uint8_t mask=(1<<6);
-  const uint8_t mask_1=(1<<7);
+  const uint8_t mask = (1<<6);
+  const uint8_t mask_1 = (1<<7);
+  const uint8_t mask_2 = (1<<5);
 
   // we configure the pin as output, clearing the bit 6
   DDRB |= mask;
@@ -91,6 +92,10 @@ int main(void){
   // we configure the pin as output, clearing the bit 7
   DDRB |= mask_1;
   PORTB &= ~mask_1;
+  
+  // we configure the pin as output, clearing the bit 5
+  DDRB |= mask_2;
+  PORTB &= ~mask_2;
   
   // we configure the pin as input, clearing the bit 6
   // we enable pullup resistor on that pin
@@ -102,6 +107,10 @@ int main(void){
   DDRK &= ~mask_1;
   PORTK |= mask_1;
   
+  // we configure the pin as input, clearing the bit 5
+  // we enable pullup resistor on that pin
+  DDRK &= ~mask_2;
+  PORTK |= mask_2;
   
   while(1) {
     UART_getString(buf);
@@ -124,6 +133,11 @@ int main(void){
       UART_putString((uint8_t*)"led 01 acceso\n");
     }
     
+    else if (strncmp(testo,"ledon_02\n",strlen("ledon_02\n"))==0){
+      PORTB &= ~mask_2;
+      UART_putString((uint8_t*)"led 02 acceso\n");
+    }
+    
     else if (strncmp(testo,"ledoff_00\n",strlen("ledoff_00\n"))==0){
       PORTB |= mask;
       UART_putString((uint8_t*)"led 00 spento\n");
@@ -132,6 +146,11 @@ int main(void){
     else if (strncmp(testo,"ledoff_01\n",strlen("ledoff_01\n"))==0){
       PORTB |= mask_1;
       UART_putString((uint8_t*)"led 01 spento\n");
+    }
+    
+    else if (strncmp(testo,"ledoff_02\n",strlen("ledoff_02\n"))==0){
+      PORTB |= mask_2;
+      UART_putString((uint8_t*)"led 02 spento\n");
     }
     
     else UART_putString((uint8_t*)"comando non accettato\n ");
@@ -145,9 +164,13 @@ int main(void){
     if(key) UART_putString((uint8_t*)"led 00, 1\n");
     else UART_putString((uint8_t*)"led 00, 0\n");
     
-    int key_1=(PINK&mask_1)==0; // we extract the bit value of the 6th bit
+    int key_1=(PINK&mask_1)==0; // we extract the bit value of the 7th bit
     if(key_1) UART_putString((uint8_t*)"led 01, 1\n");
     else UART_putString((uint8_t*)"led 01, 0\n");
+    
+    int key_2=(PINK&mask_2)==0; // we extract the bit value of the 5th bit
+    if(key_2) UART_putString((uint8_t*)"led 02, 1\n");
+    else UART_putString((uint8_t*)"led 02, 0\n");
     _delay_ms(1000); // from delay.h, wait 1 sec
 
   }
