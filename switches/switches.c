@@ -73,9 +73,9 @@ void UART_putString(uint8_t* buf){
 void stampaRiepilogo(uint8_t* array){
 	UART_putString((uint8_t*)"\n\nRiepilogo led:\n");
 	int key;
-	for(int i = 0; i<4; i++){
+	for(int i = 0; i<8; i++){
 		char curr = i+48;
-		key=(PINK&array[i])==0; // we extract the bit value of the 6th bit
+		key=(PINK&array[i])==0; // we extract the bit value of the bit
 		UART_putString((uint8_t*)"led 0");
 		UART_putChar((uint8_t*)curr);
 		if(key){
@@ -95,59 +95,68 @@ int main(void){
   UART_putString((uint8_t*)"(leds turned on by default)\n");
   uint8_t buf[MAX_BUF];
   
-  //
-  //Inizio cambiamenti
-  //
+  
   const uint8_t mask = (1<<6);
   const uint8_t mask_1 = (1<<7);
   const uint8_t mask_2 = (1<<5);
   const uint8_t mask_3 = (1<<4);
+  const uint8_t mask_4 = (1<<3);
+  const uint8_t mask_5 = (1<<2);
+  const uint8_t mask_6 = (1<<1);
+  const uint8_t mask_7 = (1<<0);
   
-  uint8_t *array = (uint8_t*) malloc (4*sizeof(uint8_t));
+  uint8_t *array = (uint8_t*) malloc (8*sizeof(uint8_t));
   array[0]=mask;
   array[1]=mask_1;
   array[2]=mask_2;
   array[3]=mask_3;
+  array[4]=mask_4;
+  array[5]=mask_5;
+  array[6]=mask_6;
+  array[7]=mask_7;
   
-  //OUTPUT
+  //OUTPUT-------------------------------------------------------
   
-  // we configure the pin as output, clearing the bit 6
+  // we configure the pin as output, clearing the bit 6 B
   DDRB |= mask;
   PORTB &= ~mask;
   
-  // we configure the pin as output, clearing the bit 7
+  // we configure the pin as output, clearing the bit 7 B
   DDRB |= mask_1;
   PORTB &= ~mask_1;
   
-  // we configure the pin as output, clearing the bit 5
+  // we configure the pin as output, clearing the bit 5 B
   DDRB |= mask_2;
   PORTB &= ~mask_2;
   
-  // we configure the pin as output, clearing the bit 4
+  // we configure the pin as output, clearing the bit 4 B
   DDRB |= mask_3;
   PORTB &= ~mask_3;
   
-  //INPUT
+  // we configure the pin as output, clearing the bit 6 H
+  DDRH |= mask;
+  PORTH &= ~mask;
   
-  // we configure the pin as input, clearing the bit 6
-  // we enable pullup resistor on that pin
-  DDRK &= ~mask;
-  PORTK |= mask;
+  // we configure the pin as output, clearing the bit 5 H
+  DDRH |= mask_2;
+  PORTH &= ~mask_2;
   
-  // we configure the pin as input, clearing the bit 7
-  // we enable pullup resistor on that pin
-  DDRK &= ~mask_1;
-  PORTK |= mask_1;
+  // we configure the pin as output, clearing the bit 4 H
+  DDRH |= mask_3;
+  PORTH &= ~mask_3;
   
-  // we configure the pin as input, clearing the bit 5
-  // we enable pullup resistor on that pin
-  DDRK &= ~mask_2;
-  PORTK |= mask_2;
+  // we configure the pin as output, clearing the bit 3 H
+  DDRH |= mask_4;
+  PORTH &= ~mask_4;
   
-  // we configure the pin as input, clearing the bit 4
-  // we enable pullup resistor on that pin
-  DDRK &= ~mask_3;
-  PORTK |= mask_3;
+  //INPUT----------------------------------------------------------
+  
+  for(int i =0; i<8; i++){
+	  DDRK &= ~array[i];  // we configure the pin as input, clearing the bit i
+	  PORTK |= array[i];  // we enable pullup resistor on that pin
+  }
+  
+  
   
   while(1) {
     UART_getString(buf);
@@ -182,6 +191,26 @@ int main(void){
 				UART_putString((uint8_t*)"accensione led 03...\n");
 				break;
 			
+			case '4':
+				PORTH &= ~mask;
+				UART_putString((uint8_t*)"accensione led 04...\n");
+				break;
+				
+			case '5':
+				PORTH &= ~mask_2;
+				UART_putString((uint8_t*)"accensione led 05...\n");
+				break;
+				
+			case '6':
+				PORTH &= ~mask_3;
+				UART_putString((uint8_t*)"accensione led 06...\n");
+				break;
+				
+			case '7':
+				PORTH &= ~mask_4;
+				UART_putString((uint8_t*)"accensione led 07...\n");
+				break;
+			
 			default:
 				UART_putString((uint8_t*)"led non esistente\n");
 		}
@@ -208,6 +237,26 @@ int main(void){
 			case '3':
 				PORTB |= mask_3;
 				UART_putString((uint8_t*)"spegnimento led 03...\n");
+				break;
+				
+			case '4':
+				PORTH |= mask;
+				UART_putString((uint8_t*)"spegnimento led 04...\n");
+				break;
+			
+			case '5':
+				PORTH |= mask_2;
+				UART_putString((uint8_t*)"spegnimento led 05...\n");
+				break;
+			
+			case '6':
+				PORTH |= mask_3;
+				UART_putString((uint8_t*)"spegnimento led 06...\n");
+				break;
+			
+			case '7':
+				PORTH |= mask_4;
+				UART_putString((uint8_t*)"spegnimento led 07...\n");
 				break;
 			
 			default:
