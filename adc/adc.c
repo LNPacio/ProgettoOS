@@ -36,11 +36,16 @@ int main(void){
   // this initializes the ADC channel
   init_analogic_input();
 
-  OCR0A=0x0f;
+  OCR0A=0x0a;
   while(1){
-
+	  OCR0A+=10;
 	  printf("In Volt su PIN A0: %d \n", read_analog());
-	  _delay_ms(500); // from delay.h, wait 0.5 sec
+	  _delay_ms(100); // from delay.h, wait 0.5 sec
+	  if(OCR0A > 243) {
+		  do{OCR0A-=10;
+			  _delay_ms(100); // from delay.h, wait 0.5 sec
+			  } while (OCR0A > 10);
+	  }
   }
 
 }
