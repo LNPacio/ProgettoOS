@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <termios.h>
 
 
 int shell_set_name(char **args);
@@ -12,6 +14,14 @@ int shell_set_channel_name(char **args);
 int shell_query_channels(char **args);
 int shell_help(char **args);
 int shell_exit(char **args);
+void readFromArduino();
+
+struct termios tio;
+    struct termios stdio;
+    struct termios old_stdio;
+	int tty_fd;
+	
+	unsigned char c='D';
 
 
 char *builtin_str[] = {
@@ -72,7 +82,8 @@ int shell_set_name(char **args){
     fprintf(stderr, "shell: expected argument to \"set_name\" CONTRLLER_NAME\n");
   } else {
     if (chdir(args[1]) != 0) {
-		perror("too many arguments");
+		 write(tty_fd, args[1], 8);
+		
     }
   }
   return 1;
@@ -225,6 +236,8 @@ void shell_loop(void)
   int status;
 
   do {
+	sleep(1);
+	readFromArduino();
     printf("smart_house ");
     line = shell_read_line();
     args = shell_split_line(line);
@@ -235,10 +248,56 @@ void shell_loop(void)
   } while (status);
 }
 
-int main(int argc, char **argv)
-{
-  shell_loop();
+void readFromArduino(){
+	if(read(tty_fd,&c,1)>0){
+		printf("\nARDUINO: ");
+		printf("%c", c);
+		while(read(tty_fd,&c,1)>0){
+			printf("%c", c);
+		}
+		printf("\n");
+	}
+}
 
+int main(int argc, char **argv){
+	
+	
+    tcgetattr(STDOUT_FILENO,&old_stdio);
+
+    //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
+   /* memset(&stdio,0,sizeof(stdio));
+	stdio.c_iflag=0;
+    stdio.c_oflag=0;
+    stdio.c_cflag=0;
+    stdio.c_lflag=0;
+        stdio.c_cc[VMIN]=1;
+        stdio.c_cc[VTIME]=0;
+        tcsetattr(STDOUT_FILENO,TCSANOW,&stdio);
+        tcsetattr(STDOUT_FILENO,TCSAFLUSH,&stdio);
+        fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);       // make the reads non-blocking*/
+
+        memset(&tio,0,sizeof(tio));
+        tio.c_iflag=0;
+        tio.c_oflag=0;
+        tio.c_cflag=CS8|CREAD|CLOCAL;           // 8n1, see termios.h for more information
+        tio.c_lflag=0;
+        tio.c_cc[VMIN]=1;
+        tio.c_cc[VTIME]=5;
+
+        tty_fd=open("/dev/ttyACM0", O_RDWR | O_NONBLOCK);      
+        cfsetospeed(&tio,B19200);            // 19200 baud
+        cfsetispeed(&tio,B19200);            // 19200 baud
+
+        tcsetattr(tty_fd,TCSANOW,&tio);
+        
+
+	
+	
+	
+  shell_loop();
+  
+  close(tty_fd);
+  tcsetattr(STDOUT_FILENO,TCSANOW,&old_stdio);
 
   return EXIT_SUCCESS;
 }
