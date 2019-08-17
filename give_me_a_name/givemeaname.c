@@ -79,7 +79,7 @@ int main(void){
 	
 	while(1){
   
-	UART_putString((uint8_t*)"Give me a name! (8 char)\n");
+	UART_putString((uint8_t*)"Give me a name! (max 7 char)\n");
 	UART_getString(buf);
     
     char name[8];

@@ -78,11 +78,17 @@ int shell_set_channel_name(char **args){
 }
 
 int shell_set_name(char **args){
-  if (args[1] == NULL) {
+	int ret;
+	if (args[1] == NULL) {
     fprintf(stderr, "shell: expected argument to \"set_name\" CONTRLLER_NAME\n");
   } else {
     if (chdir(args[1]) != 0) {
-		 write(tty_fd, args[1], 8);
+		int i = 0; 
+		while(args[1][i] != NULL){
+			i++;
+		}
+		ret = write(tty_fd, args[1], i+1);
+		if(ret < 0) printf("Errore nella write\n");
 		
     }
   }
