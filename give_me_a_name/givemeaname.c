@@ -77,6 +77,8 @@ int main(void){
 	UART_init();
 	uint8_t buf[8];
 	
+	UART_putString((uint8_t*)"Hello! I'm a smart home controller.\n");
+	
 	while(1){
   
 	UART_putString((uint8_t*)"Give me a name! (max 7 char)\n");
