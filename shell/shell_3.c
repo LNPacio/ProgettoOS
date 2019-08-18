@@ -16,6 +16,9 @@ int shell_help(char **args);
 int shell_exit(char **args);
 void readFromArduino();
 
+//dichiarazione variabili globali
+char *device_name = ' ';
+
 struct termios tio;
     struct termios stdio;
     struct termios old_stdio;
@@ -76,15 +79,43 @@ int shell_set_channel_value(char **args){
 
 int shell_set_channel_name(char **args){
 	int ret;
-	char code[2];
+	char code[2], num_switch;
 	code[0] = '0';
 	code[1] = '1';
-  if (args[1] == NULL) {
+  if (args[1] == NULL || args[2] == NULL || args[3] == NULL) {
     fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
   } else {
-    if (chdir(args[1]) != 2) {
+    /*if (chdir(args[1]) != 2) {
       perror("shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
-    }
+    }*/
+    
+    /*if(args[1] != device_name){
+		fprintf(stderr, "shell: incorrect  CONTROLLER_NAME\n");
+	}
+	else{*/
+		
+		if(args[2][0]!= 's' || args[2][1]!= 'w'|| args[2][2]!= 'i' || args[2][3]!= 't' || args[2][4]!= 'c' || args[2][5]!= 'h' || args[2][6]!= '_'){
+			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
+		}
+		else{
+		num_switch = args[2][7];
+		//invio codice istruzione
+		ret = write(tty_fd, code, 2);
+		if(ret < 0) printf("Errore nella write code\n");
+		//invio numero switch
+		ret = write(tty_fd, &num_switch, 1);
+		if(ret < 0) printf("Errore nella write\n");
+		//invio nome switch
+		int i = 0; 
+		while(args[3][i] != NULL){
+		i++;
+		}
+		device_name = args[1];
+		ret = write(tty_fd, args[3], i+1);
+		if(ret < 0) printf("Errore nella write\n");
+		}
+	//}
+    
   }
   return 1;
 }
@@ -95,21 +126,21 @@ int shell_set_name(char **args){
 	code[0] = '0';
 	code[1] = '0';
 	if (args[1] == NULL) {
-    fprintf(stderr, "shell: expected argument to \"set_name\" CONTRLLER_NAME\n");
-  } else {
+		fprintf(stderr, "shell: expected argument to \"set_name\" CONTRLLER_NAME\n");
+	} else {
     //if (chdir(args[1]) != 0) {
+    //}
 		ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 		int i = 0; 
 		while(args[1][i] != NULL){
 			i++;
 		}
+		device_name = args[1];
 		ret = write(tty_fd, args[1], i+1);
 		if(ret < 0) printf("Errore nella write\n");
-		//printf("DEBUG CLIENT\n");
-    //}
-  }
-  return 1;
+	}
+	return 1;
 }
 
 
@@ -288,16 +319,6 @@ int main(int argc, char **argv){
     tcgetattr(STDOUT_FILENO,&old_stdio);
 
     //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
-   /* memset(&stdio,0,sizeof(stdio));
-	stdio.c_iflag=0;
-    stdio.c_oflag=0;
-    stdio.c_cflag=0;
-    stdio.c_lflag=0;
-        stdio.c_cc[VMIN]=1;
-        stdio.c_cc[VTIME]=0;
-        tcsetattr(STDOUT_FILENO,TCSANOW,&stdio);
-        tcsetattr(STDOUT_FILENO,TCSAFLUSH,&stdio);
-        fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);       // make the reads non-blocking*/
 
         memset(&tio,0,sizeof(tio));
         tio.c_iflag=0;
