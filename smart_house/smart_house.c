@@ -84,16 +84,25 @@ void init_pwm(){
 
 
 int main(void){
-	
+
 	init_pwm();
 	UART_init();
 	uint8_t buf[MAX_BUF];
 	OCR0A=0x00;
-	
-	
-    
+
+  char *channel_name[8]={"uno","due","tre","quattro","cinque","sei","sette","otto"};
+
+/*  char channel_name0[16];
+  char channel_name1[16];
+  char channel_name2[16];
+  char channel_name3[16];
+  char channel_name4[16];
+  char channel_name5[16];
+	*/
+
+
     while(1) {
-		
+
 		//lettura buffer e memorizzazione in altra variabile
 		for (int i=0;i<MAX_BUF;i++){
 		buf[i]=((uint8_t)'\0');
@@ -103,21 +112,21 @@ int main(void){
 		for (int i=0;i<MAX_BUF;i++){
 		testo[i]=carattere(buf[i]);
 		}
-		
-		
+
+
 		switch(testo[0]){
 			case '0':
 				if(testo[1] == '0'){//00 set_name
-					
+
 					char name[MAX_BUF];
-					
-					
+
+
 					char testo[256];
 					for (int i=0;i<MAX_BUF;i++){
 					testo[i]=carattere(buf[i]);
 					name[i] = NULL;
 					}
-					
+
 					for (int i=0;i<MAX_BUF;i++){
 						if(testo[i+2] == '\0') break;
 						name[i]=testo[i+2];
@@ -127,7 +136,29 @@ int main(void){
 					UART_putString((uint8_t*)"\n");
 				}
 				if(testo[1] == '1'){//01 set_channel_name
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+
+          char curr_name[MAX_BUF];
+          int num_channel;
+
+          char testo[256];
+					for (int i=0;i<MAX_BUF;i++){
+					testo[i]=carattere(buf[i]);
+					}
+
+          num_channel = atoi(testo[2]);
+
+          for (int i=0;i<MAX_BUF;i++){
+						if(testo[i+3] == '\0') break;
+						curr_name[i]=testo[i+3];
+					}
+
+          channel_name[num_channel] = curr_name;
+
+          UART_putString((uint8_t*)"Switch_: ");
+					UART_putString((uint8_t*)testo[2]);
+					UART_putString((uint8_t*)" new name is: ");
+          UART_putString((uint8_t*)channel_name[num_channel]);
+          UART_putString((uint8_t*)"\n");
 				}
 				if(testo[1] == '2'){//02 set_channel_value
 					UART_putString((uint8_t*)"Function not yet implemented\n");
@@ -148,17 +179,17 @@ int main(void){
 				if(testo[1] == '9')
 					UART_putString((uint8_t*)"Function not yet implemented\n");
 				break;
-			
+
 			default:
 					UART_putString((uint8_t*)"Function not yet implemented\n");
 					break;
 		}
-		
+
 	}
-					
-	
-    
+
+
+
     _delay_ms(500); // from delay.h, wait 0.5 sec
-    
-    
+
+
 }

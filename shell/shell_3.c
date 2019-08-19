@@ -23,7 +23,7 @@ struct termios tio;
     struct termios stdio;
     struct termios old_stdio;
 	int tty_fd;
-	
+
 	unsigned char c='D';
 
 
@@ -88,14 +88,14 @@ int shell_set_channel_name(char **args){
     /*if (chdir(args[1]) != 2) {
       perror("shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
     }*/
-    
+
     /*if(args[1] != device_name){
 		fprintf(stderr, "shell: incorrect  CONTROLLER_NAME\n");
 	}
 	else{*/
-		
+
 		if(args[2][0]!= 's' || args[2][1]!= 'w'|| args[2][2]!= 'i' || args[2][3]!= 't' || args[2][4]!= 'c' || args[2][5]!= 'h' || args[2][6]!= '_'){
-			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
+			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\"  \n");
 		}
 		else{
 		num_switch = args[2][7];
@@ -106,7 +106,7 @@ int shell_set_channel_name(char **args){
 		ret = write(tty_fd, &num_switch, 1);
 		if(ret < 0) printf("Errore nella write\n");
 		//invio nome switch
-		int i = 0; 
+		int i = 0;
 		while(args[3][i] != NULL){
 		i++;
 		}
@@ -115,7 +115,7 @@ int shell_set_channel_name(char **args){
 		if(ret < 0) printf("Errore nella write\n");
 		}
 	//}
-    
+
   }
   return 1;
 }
@@ -132,7 +132,7 @@ int shell_set_name(char **args){
     //}
 		ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
-		int i = 0; 
+		int i = 0;
 		while(args[1][i] != NULL){
 			i++;
 		}
@@ -314,8 +314,8 @@ void readFromArduino(){
 }
 
 int main(int argc, char **argv){
-	
-	
+
+
     tcgetattr(STDOUT_FILENO,&old_stdio);
 
     //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
@@ -328,18 +328,18 @@ int main(int argc, char **argv){
         tio.c_cc[VMIN]=1;
         tio.c_cc[VTIME]=5;
 
-        tty_fd=open("/dev/ttyACM0", O_RDWR | O_NONBLOCK);      
+        tty_fd=open("/dev/ttyACM0", O_RDWR | O_NONBLOCK);
         cfsetospeed(&tio,B19200);            // 19200 baud
         cfsetispeed(&tio,B19200);            // 19200 baud
 
         tcsetattr(tty_fd,TCSANOW,&tio);
-        
 
-	
-	
-	
+
+
+
+
   shell_loop();
-  
+
   close(tty_fd);
   tcsetattr(STDOUT_FILENO,TCSANOW,&old_stdio);
 
