@@ -104,6 +104,7 @@ int shell_set_channel_name(char **args){
 		if(ret < 0) printf("Errore nella write code\n");
 		//invio numero switch
 		ret = write(tty_fd, &num_switch, 1);
+    fprintf("%c",&num_switch); //non printa nulla 
 		if(ret < 0) printf("Errore nella write\n");
 		//invio nome switch
 		int i = 0;

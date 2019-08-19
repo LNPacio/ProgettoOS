@@ -139,7 +139,6 @@ int main(void){
 
           char curr_name[MAX_BUF];
           int num_channel;
-
           char testo[256];
 					for (int i=0;i<MAX_BUF;i++){
 					testo[i]=carattere(buf[i]);
@@ -153,9 +152,10 @@ int main(void){
 					}
 
           channel_name[num_channel] = curr_name;
-
-          UART_putString((uint8_t*)"Switch_: ");
-					UART_putString((uint8_t*)testo[2]);
+          char buf[1];
+          UART_putString((uint8_t*)"switch_");
+					UART_putString((uint8_t*)itoa(num_channel,buf,10));//converte intero in str
+          //e per qualche ragione lavora sempre solo sull'elemento 0
 					UART_putString((uint8_t*)" new name is: ");
           UART_putString((uint8_t*)channel_name[num_channel]);
           UART_putString((uint8_t*)"\n");
