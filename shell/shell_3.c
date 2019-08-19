@@ -17,7 +17,7 @@ int shell_exit(char **args);
 void readFromArduino();
 
 //dichiarazione variabili globali
-char *device_name = ' ';
+char device_name[16];
 
 struct termios tio;
     struct termios stdio;
@@ -78,7 +78,9 @@ int shell_set_channel_value(char **args){
 }
 
 int shell_set_channel_name(char **args){
-	int ret;
+  printf(device_name);
+  printf("\n");
+	int ret, i=0;
 	char code[2], num_switch;
 	code[0] = '0';
 	code[1] = '1';
@@ -88,14 +90,22 @@ int shell_set_channel_name(char **args){
     /*if (chdir(args[1]) != 2) {
       perror("shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
     }*/
-
-    /*if(args[1] != device_name){
-		fprintf(stderr, "shell: incorrect  CONTROLLER_NAME\n");
+  int flag = 0;
+  while(args[1][i] != NULL ){
+    if(args[1][i] != device_name[i] || device_name[i] == NULL || (device_name[i+1] != NULL && args[1][i+1]==NULL) ){
+      flag=1;
+      break;
+    }
+    i++;
+    }
+  if(flag){
+    //  fprintf(args[1]);
+	   fprintf(stderr, "shell: incorrect  CONTROLLER_NAME\n");
 	}
-	else{*/
+	else{
 
 		if(args[2][0]!= 's' || args[2][1]!= 'w'|| args[2][2]!= 'i' || args[2][3]!= 't' || args[2][4]!= 'c' || args[2][5]!= 'h' || args[2][6]!= '_'){
-			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\"  \n");
+			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" (max length 16) \n");
 		}
 		else{
 		num_switch = args[2][7];
@@ -104,18 +114,21 @@ int shell_set_channel_name(char **args){
 		if(ret < 0) printf("Errore nella write code\n");
 		//invio numero switch
 		ret = write(tty_fd, &num_switch, 1);
-    fprintf("%c",&num_switch); //non printa nulla 
+    fprintf("%c",&num_switch); //non printa nulla
 		if(ret < 0) printf("Errore nella write\n");
 		//invio nome switch
 		int i = 0;
 		while(args[3][i] != NULL){
 		i++;
 		}
-		device_name = args[1];
+    if (i>16){
+      fprintf(stderr, "channel name can't be longer than 16" );
+      }
+
 		ret = write(tty_fd, args[3], i+1);
 		if(ret < 0) printf("Errore nella write\n");
 		}
-	//}
+	  }
 
   }
   return 1;
@@ -134,10 +147,19 @@ int shell_set_name(char **args){
 		ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 		int i = 0;
-		while(args[1][i] != NULL){
+
+    for(int j=0; j<16; j++){
+      device_name[j]=NULL;
+    }
+
+    while(args[1][i] != NULL){
+      device_name[i]=args[1][i];
 			i++;
 		}
-		device_name = args[1];
+
+    printf("DEBUG: ");
+    printf(device_name);
+    printf("\n");
 		ret = write(tty_fd, args[1], i+1);
 		if(ret < 0) printf("Errore nella write\n");
 	}

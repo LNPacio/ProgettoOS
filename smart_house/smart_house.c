@@ -90,7 +90,11 @@ int main(void){
 	uint8_t buf[MAX_BUF];
 	OCR0A=0x00;
 
-  char *channel_name[8]={"uno","due","tre","quattro","cinque","sei","sette","otto"};
+  //allocazione variabile per nomi switch
+  char** channel_name = (char**) malloc(sizeof(char*) * 8);
+  for(int i = 0; i<8; i++){
+    channel_name[i] = (char*) malloc(sizeof(char) * 16);
+  }
 
 /*  char channel_name0[16];
   char channel_name1[16];
@@ -139,6 +143,7 @@ int main(void){
 
           char curr_name[MAX_BUF];
           int num_channel;
+
           char testo[256];
 					for (int i=0;i<MAX_BUF;i++){
 					testo[i]=carattere(buf[i]);
@@ -146,16 +151,19 @@ int main(void){
 
           num_channel = atoi(testo[2]);
 
+          for(int i=0; i<16; i++){
+            channel_name[num_channel][i] = NULL;
+          }
+
+          channel_name[num_channel] = NULL;
           for (int i=0;i<MAX_BUF;i++){
 						if(testo[i+3] == '\0') break;
 						curr_name[i]=testo[i+3];
 					}
 
           channel_name[num_channel] = curr_name;
-          char buf[1];
           UART_putString((uint8_t*)"switch_");
-					UART_putString((uint8_t*)itoa(num_channel,buf,10));//converte intero in str
-          //e per qualche ragione lavora sempre solo sull'elemento 0
+					UART_putChar((uint8_t) testo[2]);
 					UART_putString((uint8_t*)" new name is: ");
           UART_putString((uint8_t*)channel_name[num_channel]);
           UART_putString((uint8_t*)"\n");
