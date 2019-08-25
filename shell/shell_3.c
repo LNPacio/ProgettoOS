@@ -55,12 +55,7 @@ int shell_query_channels(char **args){
 	code[1] = '3';
   if (args[1] == NULL) {
     fprintf(stderr, "shell: expected argument to \"query_channels\" CONTRLLER_NAME\n");
-  } else {
-    if (chdir(args[1]) != 0) {
-      perror("too many arguments");
-    }
   }
-  return 1;
 }
 int shell_set_channel_value(char **args){
 	int ret;
@@ -68,18 +63,37 @@ int shell_set_channel_value(char **args){
 	code[0] = '0';
 	code[1] = '2';
   if (args[1] == NULL) {
-    fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_0_TO_100 \n");
-  } else {
-    if (chdir(args[1]) != 1) {
-      perror("shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_0_TO_100 \n");
-    }
+    fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_000_TO_255 \n");
   }
+  else if ( args[2][0] == NULL || args[2][1]==NULL || args[2][2]==NULL || args[2][3]!=NULL ){
+    fprintf(stderr, "The value is not valid, you have to insert a number between 000 and 255 \n");
+  }
+  else{
+    ret = write(tty_fd, code, 2);
+		if(ret < 0) printf("Errore nella write code\n");
+
+    int i = 0;
+		while(args[1][i] != NULL){
+		i++;
+		}
+
+    ret = write(tty_fd, args[1], i+1);
+		if(ret < 0) printf("Errore nella write\n");
+
+    printf(args[2]);
+    printf("\n");
+    i = 0;
+    while(args[2][i] != NULL){
+    i++;
+    }
+    ret = write(tty_fd, args[2], i+1);
+		if(ret < 0) printf("Errore nella write\n");
+    }
   return 1;
 }
 
 int shell_set_channel_name(char **args){
-  printf(device_name);
-  printf("\n");
+
 	int ret, i=0;
 	char code[2], num_switch;
 	code[0] = '0';
@@ -157,9 +171,8 @@ int shell_set_name(char **args){
 			i++;
 		}
 
-    printf("DEBUG: ");
-    printf(device_name);
-    printf("\n");
+
+
 		ret = write(tty_fd, args[1], i+1);
 		if(ret < 0) printf("Errore nella write\n");
 	}

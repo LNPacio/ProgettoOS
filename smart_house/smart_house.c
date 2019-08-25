@@ -111,6 +111,7 @@ int main(void){
 		for (int i=0;i<MAX_BUF;i++){
 		buf[i]=((uint8_t)'\0');
 		}
+    _delay_ms(2000);
 		UART_getString(buf);
 		char testo[256];
 		for (int i=0;i<MAX_BUF;i++){
@@ -169,8 +170,53 @@ int main(void){
           UART_putString((uint8_t*)"\n");
 				}
 				if(testo[1] == '2'){//02 set_channel_value
-					UART_putString((uint8_t*)"Function not yet implemented\n");
-				}
+
+          int num_channel, value;
+          char channel_sel[16];
+
+          for(int i=0; i<16; i++){
+            channel_sel[i] = NULL;
+          }
+
+          char testo[256];
+					for (int i=0;i<MAX_BUF;i++){
+					testo[i]=carattere(buf[i]);
+					}
+
+          int j=0;
+          while(testo[j+3]!=NULL){
+            channel_sel[j] = testo[j+2];
+            j++;
+          }
+
+          int flag = 1;
+          for(int i =0; i<8; i++){
+            if(strcmp(channel_sel, channel_name[i])==0){
+              flag=0;
+              num_channel=i;
+              break;
+            }
+          }
+
+          char cnum_channel = '0';
+          cnum_channel += num_channel;
+
+          if(flag) UART_putString((uint8_t*)"Channel name don't exist");
+
+          else{
+
+            value = itoa(atoi(testo[2+j])*100 + atoi(testo[2+j+1])*10 + atoi(testo[2+j+2]));
+            UART_putString((uint8_t*)testo);
+            UART_putString((uint8_t*)value);
+            /*UART_putString((uint8_t*)"switch_");
+            UART_putChar((uint8_t) cnum_channel);
+            UART_putString((uint8_t*)" valore: ");
+            UART_putChar((uint8_t) testo[2+j]);
+            UART_putChar((uint8_t) testo[2+j+1]);
+            UART_putChar((uint8_t) testo[2+j+2]);
+            UART_putString((uint8_t*)"\n");*/
+          }
+        }
 				if(testo[1] == '3'){//03 query_channels
 					UART_putString((uint8_t*)"Function not yet implemented\n");
 				}
@@ -189,7 +235,7 @@ int main(void){
 				break;
 
 			default:
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"diobelloesimpatico\n");
 					break;
 		}
 
