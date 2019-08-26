@@ -69,7 +69,28 @@ int shell_set_channel_value(char **args){
     fprintf(stderr, "The value is not valid, you have to insert a number between 000 and 255 \n");
   }
   else{
-    ret = write(tty_fd, code, 2);
+	  char buffer[16];
+	  
+	  for(int i = 0; i < 16; i++){
+		buffer[i] = NULL;
+	  }
+	  
+	  buffer[0] = code[0];
+	  buffer[1] = code[1];
+	  
+	  int i = 0;
+		while(args[1][i] != NULL){
+		buffer[2+i] = args[1][i];
+		i++;
+		}
+		buffer[2+i] = args[2][0];
+		buffer[2+i+1] = args[2][1];
+		buffer[2+i+2] = args[2][2];
+		
+		ret = write(tty_fd, buffer, 16);
+		if(ret < 0) printf("Errore nella write buffer\n");
+	  
+    /*ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 
     int i = 0;
@@ -77,17 +98,12 @@ int shell_set_channel_value(char **args){
 		i++;
 		}
 
-    ret = write(tty_fd, args[1], i+1);
+    ret = write(tty_fd, args[1], i);
 		if(ret < 0) printf("Errore nella write\n");
 
-    printf(args[2]);
-    printf("\n");
-    i = 0;
-    while(args[2][i] != NULL){
-    i++;
-    }
-    ret = write(tty_fd, args[2], i+1);
-		if(ret < 0) printf("Errore nella write\n");
+    
+    ret = write(tty_fd, args[2], 3);
+		if(ret < 0) printf("Errore nella write\n");*/
     }
   return 1;
 }
