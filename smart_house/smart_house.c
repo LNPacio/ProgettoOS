@@ -177,36 +177,50 @@ int main(void){
             curr_channel[len_channel]=testo[len_arduino+4+len_channel];
             len_channel++;
           }
-
+          
+          //controllo che il nome inserito sia uguale al nome del dispositivo
           int i =0;
           int flagarduino=1;
-  
           while(curr_arduino[i] != NULL || name[i] != NULL){
             if(curr_arduino[i] != name[i]){
               flagarduino = 0;
               break;
             }
             i++;
-              //UART_putString((uint8_t*)"DEBUG\n");
           }
 
 
 
           if(flagarduino < 1){
-
-            UART_putString((uint8_t*)"Tha's not my name");
-            return 0;
+			  UART_putString((uint8_t*)"Tha's not my name");
+          }
+          else{
+          
+          //controllo se il nome di un canale è uguale al nome selezionato
+          int flagchannel = 0;
+          for(int i =0; i<8; i++){
+            if(strcmp(curr_channel, channel_name[i])==0){
+              flagchannel=1;
+              break;
+            }
           }
 
+          if(flagchannel){ 
+			  UART_putString((uint8_t*)"Channel name already exist");
+		  }
+		  else{
+			  
+			channel_name[num_channel] = curr_channel;
+		
+			UART_putString((uint8_t*)curr_arduino);
+			UART_putString((uint8_t*)" -> switch_");
+			UART_putChar((uint8_t) testo[2]);
+			UART_putString((uint8_t*)" new name is: ");
+			UART_putString((uint8_t*)channel_name[num_channel]);
+			UART_putString((uint8_t*)"\n");
+			}
 
-          UART_putString((uint8_t*)"Name arduino: ");
-          UART_putString((uint8_t*)curr_arduino);
-          UART_putString((uint8_t*)" Name channel: ");
-          UART_putString((uint8_t*)curr_channel);
-          UART_putString((uint8_t*)"\n");
-
-
-
+		}
           //UART_putString((uint8_t*)"switch_");
 					//UART_putChar((uint8_t) testo[2]);
 					//UART_putString((uint8_t*)" new name is: ");
