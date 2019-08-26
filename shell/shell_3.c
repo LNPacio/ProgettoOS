@@ -18,7 +18,7 @@ void readFromArduino();
 
 //dichiarazione variabili globali
 char device_name[16];
-
+char buffer[32];
 struct termios tio;
     struct termios stdio;
     struct termios old_stdio;
@@ -59,9 +59,6 @@ int shell_query_channels(char **args){
 }
 int shell_set_channel_value(char **args){
 	int ret;
-	char code[2];
-	code[0] = '0';
-	code[1] = '2';
   if (args[1] == NULL) {
     fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_000_TO_255 \n");
   }
@@ -69,15 +66,16 @@ int shell_set_channel_value(char **args){
     fprintf(stderr, "The value is not valid, you have to insert a number between 000 and 255 \n");
   }
   else{
-	  char buffer[16];
-	  
-	  for(int i = 0; i < 16; i++){
+
+
+	  for(int i = 0; i < 32; i++){
 		buffer[i] = NULL;
 	  }
-	  
-	  buffer[0] = code[0];
-	  buffer[1] = code[1];
-	  
+
+    //codice funzione
+	  buffer[0] = '0';
+	  buffer[1] = '2';
+
 	  int i = 0;
 		while(args[1][i] != NULL){
 		buffer[2+i] = args[1][i];
@@ -86,10 +84,10 @@ int shell_set_channel_value(char **args){
 		buffer[2+i] = args[2][0];
 		buffer[2+i+1] = args[2][1];
 		buffer[2+i+2] = args[2][2];
-		
-		ret = write(tty_fd, buffer, 16);
+
+		ret = write(tty_fd, buffer, i+6);
 		if(ret < 0) printf("Errore nella write buffer\n");
-	  
+
     /*ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 
@@ -101,7 +99,7 @@ int shell_set_channel_value(char **args){
     ret = write(tty_fd, args[1], i);
 		if(ret < 0) printf("Errore nella write\n");
 
-    
+
     ret = write(tty_fd, args[2], 3);
 		if(ret < 0) printf("Errore nella write\n");*/
     }
@@ -117,30 +115,39 @@ int shell_set_channel_name(char **args){
   if (args[1] == NULL || args[2] == NULL || args[3] == NULL) {
     fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
   } else {
-    /*if (chdir(args[1]) != 2) {
-      perror("shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" \n");
-    }*/
-  int flag = 0;
-  while(args[1][i] != NULL ){
-    if(args[1][i] != device_name[i] || device_name[i] == NULL || (device_name[i+1] != NULL && args[1][i+1]==NULL) ){
-      flag=1;
-      break;
-    }
-    i++;
-    }
-  if(flag){
-    //  fprintf(args[1]);
-	   fprintf(stderr, "shell: incorrect  CONTROLLER_NAME\n");
-	}
-	else{
 
 		if(args[2][0]!= 's' || args[2][1]!= 'w'|| args[2][2]!= 'i' || args[2][3]!= 't' || args[2][4]!= 'c' || args[2][5]!= 'h' || args[2][6]!= '_'){
 			fprintf(stderr, "shell: expected arguments to \"set_channel_name\" CONTROLLER_NAME switch_NUMBER \"SWITCH_NAME\" (max length 16) \n");
 		}
 		else{
-		num_switch = args[2][7];
+
+    num_switch = args[2][7];
+
+    for(int i = 0; i < 32; i++){
+		buffer[i] = NULL;
+	  }
+
+    //codice funzione
+	  buffer[0] = '0';
+	  buffer[1] = '1';
+    buffer[2] = num_switch;
+    //arg[1]= arduinoname arg[2]=switch arg[3]=channel name
+	  int i = 0;
+		while(args[1][i] != NULL){
+		buffer[3+i] = args[1][i];
+		i++;
+		}
+    buffer[3+i]='*';
+    int j=0;
+    while(args[3][j] != NULL){
+		buffer[4+i+j] = args[3][j];
+		j++;
+		}
+    ret = write(tty_fd, buffer, j+i+6);
+		if(ret < 0) printf("Errore nella write code\n");
+
 		//invio codice istruzione
-		ret = write(tty_fd, code, 2);
+		/*ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 		//invio numero switch
 		ret = write(tty_fd, &num_switch, 1);
@@ -157,8 +164,9 @@ int shell_set_channel_name(char **args){
 
 		ret = write(tty_fd, args[3], i+1);
 		if(ret < 0) printf("Errore nella write\n");
-		}
-	  }
+  */
+    }
+
 
   }
   return 1;
@@ -375,7 +383,7 @@ int main(int argc, char **argv){
         memset(&tio,0,sizeof(tio));
         tio.c_iflag=0;
         tio.c_oflag=0;
-        tio.c_cflag=CS8|CREAD|CLOCAL;           // 8n1, see termios.h for more information
+        tio.c_cflag=CS8|CREAD|CLOCAL;           // 8n1
         tio.c_lflag=0;
         tio.c_cc[VMIN]=1;
         tio.c_cc[VTIME]=5;
