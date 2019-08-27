@@ -143,7 +143,7 @@ int shell_set_channel_name(char **args){
 		buffer[4+i+j] = args[3][j];
 		j++;
 		}
-    ret = write(tty_fd, buffer, j+i+6);
+    ret = write(tty_fd, buffer, j+i+5);
 		if(ret < 0) printf("Errore nella write code\n");
 
 		//invio codice istruzione

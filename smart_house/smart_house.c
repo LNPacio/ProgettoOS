@@ -96,6 +96,17 @@ int main(void){
   for(int i = 0; i<8; i++){
     channel_name[i] = (char*) malloc(sizeof(char) * 16);
   }
+  
+  //riempimento nomi
+  for(int i =0; i<8; i++){
+	  channel_name[i][0]='N';
+	  channel_name[i][1]='O';
+	  channel_name[i][2]='N';
+	  channel_name[i][3]='E';
+	  for(int j = 4; j<16; j++)
+	  channel_name[i][j]= NULL;
+  }
+  
   char name[MAX_BUF];
   for (int i=0;i<MAX_BUF;i++){
   name[i]=NULL;
@@ -122,6 +133,7 @@ int main(void){
 		for (int i=0;i<MAX_BUF;i++){
 		testo[i]=carattere(buf[i]);
 		}
+		
 
 
 		if(testo[0] == '0'){
@@ -145,6 +157,9 @@ int main(void){
 					UART_putString((uint8_t*)"\n");
 				}
 				if(testo[1] == '1'){//01 set_channel_name
+					
+					
+					
 
           char curr_arduino[16], curr_channel[16];
           int num_channel, len_arduino, len_channel;
@@ -155,7 +170,7 @@ int main(void){
 					}
 
           //01Nname*channel_name
-          num_channel = atoi(testo[2]);
+          num_channel = (testo[2] - '0');
           if(num_channel>7 || num_channel<0){
             UART_putString((uint8_t*)"Channel not valid");
             return 0;
@@ -198,19 +213,38 @@ int main(void){
           
           //controllo se il nome di un canale è uguale al nome selezionato
           int flagchannel = 0;
+          int j;
           for(int i =0; i<8; i++){
-            if(strcmp(curr_channel, channel_name[i])==0){
-              flagchannel=1;
-              break;
-            }
+			  j =0;
+            
+            while(curr_channel[j] != NULL && channel_name[i][j] != NULL){
+				
+				if(curr_channel[j] == channel_name[i][j]){
+					flagchannel = 1;
+				}
+				
+				if(curr_channel[j] != channel_name[i][j] || (curr_channel[j+1] != NULL && channel_name[i][j+1] == NULL) || (curr_channel[j+1] == NULL && channel_name[i][j+1] != NULL)){
+					flagchannel = 0;
+					break;
+				}
+				
+				j++;
+			}
+			if(flagchannel > 0){
+				 break;
+			 }
           }
 
-          if(flagchannel){ 
+          if(flagchannel > 0){ 
 			  UART_putString((uint8_t*)"Channel name already exist");
 		  }
 		  else{
-			  
-			channel_name[num_channel] = curr_channel;
+			
+			
+			for(int i =0; i<16;i++){
+				if(i<len_channel) channel_name[num_channel][i] = curr_channel[i];
+				else channel_name[num_channel][i] = NULL;
+			}
 		
 			UART_putString((uint8_t*)curr_arduino);
 			UART_putString((uint8_t*)" -> switch_");
@@ -221,13 +255,7 @@ int main(void){
 			}
 
 		}
-          //UART_putString((uint8_t*)"switch_");
-					//UART_putChar((uint8_t) testo[2]);
-					//UART_putString((uint8_t*)" new name is: ");
-          //UART_putString((uint8_t*)channel_name[num_channel]);
-          //UART_putString((uint8_t*)"\n");
-				}
-				if(testo[1] == '2'){//02 set_channel_value
+	}if(testo[1] == '2'){//02 set_channel_value
 
           int num_channel, value;
           char channel_sel[16];
@@ -250,35 +278,49 @@ int main(void){
           }
 
           int flag = 1;
+          
+          
+          int k;
           for(int i =0; i<8; i++){
-            if(strcmp(channel_sel, channel_name[i])==0){
-              flag=0;
-              num_channel=i;
-              break;
-            }
+			  k =0;
+            
+            while(channel_sel[k] != NULL && channel_name[i][k] != NULL){
+				
+				if(channel_sel[k] == channel_name[i][k]){
+					flag = 1;
+				}
+				
+				if(channel_sel[k] != channel_name[i][k] || (channel_sel[k+1] != NULL && channel_name[i][k+1] == NULL) || (channel_sel[k+1] == NULL && channel_name[i][k+1] != NULL)){
+					flag = 0;
+					break;
+				}
+				
+				k++;
+			}
+			if(flag > 0){
+				num_channel = i;
+				break;
+			 }
           }
 
           char cnum_channel = '0';
           cnum_channel += num_channel;
 
-          if(flag) UART_putString((uint8_t*)"Channel name doesn't exist");
+          if(flag < 1) UART_putString((uint8_t*)"Channel name doesn't exist");
 
           else{
 
-            value = itoa(atoi(testo[2+j])*100 + atoi(testo[2+j+1])*10 + atoi(testo[2+j+2]));
-            UART_putString((uint8_t*)testo);
-            UART_putString((uint8_t*)value);
-            for (int i=0;i<MAX_BUF;i++){
-        		testo[i]=NULL;
-        		}
-          //  testo=NULL;
-            /*UART_putString((uint8_t*)"switch_");
+          value = (testo[2+j]-'0')*100 + (testo[2+j+1]-'0')*10 + (testo[2+j+2]-'0'); 
+            
+            
+            
+            UART_putString((uint8_t*)"switch_");
             UART_putChar((uint8_t) cnum_channel);
             UART_putString((uint8_t*)" valore: ");
             UART_putChar((uint8_t) testo[2+j]);
             UART_putChar((uint8_t) testo[2+j+1]);
             UART_putChar((uint8_t) testo[2+j+2]);
-            UART_putString((uint8_t*)"\n");*/
+            UART_putString((uint8_t*)"\n");
           }
         }
 				if(testo[1] == '3'){//03 query_channels
