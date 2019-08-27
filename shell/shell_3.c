@@ -50,12 +50,29 @@ int shell_num_builtins() {
 }
 int shell_query_channels(char **args){
 	int ret;
-	char code[2];
-	code[0] = '0';
-	code[1] = '3';
   if (args[1] == NULL) {
     fprintf(stderr, "shell: expected argument to \"query_channels\" CONTRLLER_NAME\n");
   }
+  else{
+	  for(int i = 0; i < 32; i++){
+		buffer[i] = NULL;
+	  }
+
+    //codice funzione
+	  buffer[0] = '0';
+	  buffer[1] = '3';
+	  
+	  //inserimento nome nel buffer
+	  int i = 0;
+	  while(args[1][i] != NULL){
+		  buffer[2+i] = args[1][i];
+		  i++;
+		}
+		//invio dati
+		ret = write(tty_fd, buffer, i+3);
+		if(ret < 0) printf("Errore nella write buffer\n");
+  }
+  return 1;
 }
 int shell_set_channel_value(char **args){
 	int ret;
@@ -87,6 +104,7 @@ int shell_set_channel_value(char **args){
 
 		ret = write(tty_fd, buffer, i+6);
 		if(ret < 0) printf("Errore nella write buffer\n");
+		
 
     /*ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");

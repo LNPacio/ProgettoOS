@@ -97,8 +97,11 @@ int main(void){
     channel_name[i] = (char*) malloc(sizeof(char) * 16);
   }
   
-  //riempimento nomi
+  int channel_value[8];
+  
+  //riempimento nomi e valori
   for(int i =0; i<8; i++){
+	  channel_value[i] = 0;
 	  channel_name[i][0]='N';
 	  channel_name[i][1]='O';
 	  channel_name[i][2]='N';
@@ -111,14 +114,6 @@ int main(void){
   for (int i=0;i<MAX_BUF;i++){
   name[i]=NULL;
   }
-/*  char channel_name0[16];
-  char channel_name1[16];
-  char channel_name2[16];
-  char channel_name3[16];
-  char channel_name4[16];
-  char channel_name5[16];
-	*/
-
 
     while(1) {
 
@@ -245,6 +240,9 @@ int main(void){
 				if(i<len_channel) channel_name[num_channel][i] = curr_channel[i];
 				else channel_name[num_channel][i] = NULL;
 			}
+			
+			//svuotamento channel_value relativo
+			channel_value[num_channel] = 0;
 		
 			UART_putString((uint8_t*)curr_arduino);
 			UART_putString((uint8_t*)" -> switch_");
@@ -311,6 +309,8 @@ int main(void){
           else{
 
           value = (testo[2+j]-'0')*100 + (testo[2+j+1]-'0')*10 + (testo[2+j+2]-'0'); 
+          
+          channel_value[num_channel] = value;
             
             
             
@@ -323,10 +323,53 @@ int main(void){
             UART_putString((uint8_t*)"\n");
           }
         }
-				if(testo[1] == '3'){//03 query_channels
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+        if(testo[1] == '3'){//03 query_channels
+			char curr_arduino[16];
+			int len_arduino = 0;
+			
+			for(int i=0; i<16; i++){
+            curr_arduino[i] = NULL;
+            }
+
+			while(testo[len_arduino+2] != NULL){
+            curr_arduino[len_arduino] =  testo[len_arduino+2];
+            len_arduino++;
+			}
+			
+			int i =0;
+			int flagarduino=1;
+			while(curr_arduino[i] != NULL || name[i] != NULL){
+				if(curr_arduino[i] != name[i]){
+					flagarduino = 0;
+					break;
 				}
-				if(testo[1] == '4')
+				i++;
+			}
+
+
+
+          if(flagarduino < 1){
+			  UART_putString((uint8_t*)"Tha's not my name");
+          }
+          else{
+			  UART_putString((uint8_t*)"Device name: ");
+			  UART_putString((uint8_t*)name);
+			  for(int i = 0; i<8; i++){
+				  UART_putString((uint8_t*)"\nSwitch_");
+				  UART_putChar((uint8_t) (i + '0'));
+				  UART_putString((uint8_t*)" Name: ");
+				  UART_putString((uint8_t*) channel_name[i]);
+				  UART_putString((uint8_t*)" value: ");
+				  int centinaia = channel_value[i]/100;
+				  UART_putChar((uint8_t*)(centinaia+'0'));
+				  int decina = (channel_value[i] - (centinaia*100))/10;
+				  UART_putChar((uint8_t*)(decina+'0'));
+				  int unita = (channel_value[i] - (centinaia*100) -(decina*10));
+				  UART_putChar((uint8_t*)(unita+'0'));
+				  }
+			}
+		}	
+			if(testo[1] == '4')
 					UART_putString((uint8_t*)"Function not yet implemented\n");
 				if(testo[1] == '5')
 					UART_putString((uint8_t*)"Function not yet implemented\n");
