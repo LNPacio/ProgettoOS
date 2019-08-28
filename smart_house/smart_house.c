@@ -109,35 +109,35 @@ void init_pwm(){
 void on_off_value(int num_switch, int value){
     switch(num_switch){
       case 0 :
-        OCROA= value;
+        OCR0A= 0x4C;
         break;
 
       case 1 :
-        OCR1B= value;
+        OCR1B= 0x4C;
         break;
 
       case 2 :
-        OCR1A= value;
+        OCR1A= 0x4C;
         break;
 
       case 3 :
-        OCR2A= value;
+        OCR2A= 0x4C;
         break;
 
       case 4 :
-        OCR2B= value;
+        OCR2B= 0x4C;
         break;
 
       case 5 :
-        OCR4A= value;
+        OCR4A= 0x4C;
         break;
 
       case 6 :
-        OCR4B= value;
+        OCR4B= 0x4C;
         break;
 
       case 7 :
-        OCR0B= value;
+        OCR0B= 0x4C;
         break;
 
       default:
@@ -153,7 +153,6 @@ int main(void){
 	UART_init();
 	uint8_t buf[MAX_BUF];
   char testo[256];
-	OCR0A=0x00;
 
   //allocazione variabile per nomi switch
   char** channel_name = (char**) malloc(sizeof(char*) * 8);

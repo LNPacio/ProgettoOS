@@ -379,7 +379,7 @@ void shell_loop(void)
   do {
 	sleep(1);
 	readFromArduino();
-    printf("smart_house >>");
+    printf("smart_house >> ");
     line = shell_read_line();
     args = shell_split_line(line);
     status = shell_execute(args);
