@@ -25,8 +25,12 @@ struct termios tio;
 	int tty_fd;
 
 	unsigned char c='D';
-
-
+char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name pippofranco",
+  "set_channel_name\t to set a name for a switch from 0 to 7 \neg: set_channel_name pippofranco switch_3 platinet",
+  "set_channel_value\t to set a value for a switch from 0 to 255\teg: set_channel_value platinet 069",
+  "query_channels\t to see all the switches names and values from a device\neg:query_channels platinet",
+  "help\t\t\t to see this easy tutorial",
+  "exit\t\t\t to exit from the shell"};
 char *builtin_str[] = {
   "set_name",
   "set_channel_name",
@@ -61,7 +65,7 @@ int shell_query_channels(char **args){
     //codice funzione
 	  buffer[0] = '0';
 	  buffer[1] = '3';
-	  
+
 	  //inserimento nome nel buffer
 	  int i = 0;
 	  while(args[1][i] != NULL){
@@ -104,7 +108,7 @@ int shell_set_channel_value(char **args){
 
 		ret = write(tty_fd, buffer, i+6);
 		if(ret < 0) printf("Errore nella write buffer\n");
-		
+
 
     /*ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
@@ -225,12 +229,17 @@ int shell_set_name(char **args){
 int shell_help(char **args)
 {
   int i;
-  printf("Smart Home shell\n");
-  printf("Type program names and arguments, and hit enter.\n");
-  printf("The following are built in functions:\n");
-
+  printf(" _   _      _           \n");
+  printf("| | | |    | |        _ \n");
+  printf("| |_| | ___| |_ __   (_)\n");
+  printf("|  _  |/ _ \\ | '_ \\     \n");
+  printf("| | | |  __/ | |_) |  _ \n");
+  printf("\\_| |_/\\___|_| .__/  (_)\n");
+  printf("             | |        \n");
+  printf("             |_|        \n");
   for (i = 0; i < shell_num_builtins(); i++) {
-    printf("  %s\n", builtin_str[i]);
+      printf("\n");
+    printf("%s\n", help_com[i]);
   }
 
   printf("Use the man command for information on other programs.\n");
@@ -370,7 +379,7 @@ void shell_loop(void)
   do {
 	sleep(1);
 	readFromArduino();
-    printf("smart_house ");
+    printf("smart_house >>");
     line = shell_read_line();
     args = shell_split_line(line);
     status = shell_execute(args);
@@ -392,8 +401,14 @@ void readFromArduino(){
 }
 
 int main(int argc, char **argv){
-
-
+    printf("\t   _____                      _     _    _                      \n");
+    printf("\t  / ____|                    | |   | |  | |                     \n");
+    printf("\t | (___  _ __ ___   __ _ _ __| |_  | |__| | ___  _   _ ___  ___ \n");
+    printf("\t  \\___ \\| '_ ` _ \\ / _` | '__| __| |  __  |/ _ \\| | | / __|/ _ \\\n");
+    printf("\t  ____) | | | | | | (_| | |  | |_  | |  | | (_) | |_| \\__ \\  __/\n");
+    printf("\t |_____/|_| |_| |_|\\__,_|_|   \\__| |_|  |_|\\___/ \\__,_|___/\\___|\n");
+    printf("\n");
+    printf("\n");
     tcgetattr(STDOUT_FILENO,&old_stdio);
 
     //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
