@@ -376,7 +376,7 @@ int main(void){
 
           channel_value[num_channel] = value;
 
-          on_off_value(cnum_channel, value);
+          on_off_value(num_channel, value);
 
 
 
