@@ -109,7 +109,14 @@ void init_pwm(){
 void on_off_value(int num_switch, int value){
     switch(num_switch){
       case 0 :
-        OCR0A= 0x4C;
+        OCR0A= 0x4C;    //alto
+        OCR1B= 0x4C;    //basso
+        OCR1A= 0x4C;    //basso
+        OCR2A= 0x4C;    //alto
+        OCR2B= 0x4C;    //alto
+        OCR4A= 0x4C;    //basso
+        OCR4B= 0x4C;    //basso
+        OCR0B= 0x4C;    //alto
         break;
 
       case 1 :
