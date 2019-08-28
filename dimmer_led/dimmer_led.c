@@ -89,6 +89,7 @@ int main(void){
 	UART_init();
 	uint8_t buf[MAX_BUF];
 	OCR0A=0x00;
+	//OCR1A=0x00;
   
 	UART_putString((uint8_t*)"Give me a name!\n (8 char)\n");
 	UART_getString(buf);
@@ -119,14 +120,17 @@ J1:			UART_putString((uint8_t*)"How much intensity?\n");
 			
 			if(strncmp(testo,"30%",strlen("30%"))==0){
 				OCR0A=0x4C;
+				//OCR1A=0x4C;
 				UART_putString((uint8_t*)"Done!\n");
 			}
 			else if(strncmp(testo,"60%",strlen("60%"))==0){
 				OCR0A=0x9B;
+				//OCR1A=0x9B;
 				UART_putString((uint8_t*)"Done!\n");
 			}
 			else if(strncmp(testo,"100%",strlen("100%"))==0){
 				OCR0A=0xFF;
+				//OCR1A=0xFF;
 				UART_putString((uint8_t*)"Done!\n");
 			}
 			else{ 
@@ -138,6 +142,7 @@ J1:			UART_putString((uint8_t*)"How much intensity?\n");
 		
 		else if(strncmp(testo,name, 8)==0 && (testo[8]=='_' && testo[9] == 'o' && testo[10] == 'f' && testo[11] == 'f')){
 			OCR0A=0x00;
+			//OCR1A=0x00;
 			UART_putString((uint8_t*)"Done!\n");
 		}
 		
