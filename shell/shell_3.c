@@ -80,7 +80,7 @@ int shell_query_channels(char **args){
 }
 int shell_set_channel_value(char **args){
 	int ret;
-  if (args[1] == NULL) {
+  if (args[1] == NULL || args[2]==NULL || args[3]!=NULL) {
     fprintf(stderr, "shell: expected argument to \"set_channel_value\" SWITCH_NAME VALUE_FRM_000_TO_255 \n");
   }
   else if ( args[2][0] == NULL || args[2][1]==NULL || args[2][2]==NULL || args[2][3]!=NULL ){
@@ -438,3 +438,4 @@ int main(int argc, char **argv){
 
   return EXIT_SUCCESS;
 }
+
