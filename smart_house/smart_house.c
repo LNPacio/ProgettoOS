@@ -316,12 +316,13 @@ channel_name[8][3]=NULL;
 				 break;
 			 }
           }
+
           
           if(flagchannel == 2){
 			  UART_putString((uint8_t*)"You shall NONE pass!(NONE = invalid name)\n\r");
 		  }
 
-          if(flagchannel == 1){
+         else if(flagchannel == 1){
 			  UART_putString((uint8_t*)"Channel name already exist\n\r");
 		  }
 		  

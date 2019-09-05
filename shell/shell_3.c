@@ -364,16 +364,26 @@ void shell_loop(void)
   } while (status);
 }
 
+
+void printGandalf(){
+printf("                           ,---.\n                          /    |\n                         /     |\n You shall NONE pass!   /      |\n                       /       |\n          \       ___,'        |\n                <  -'          :\n                 `-.__..--'``-,_\_\n                    |o/ <o>` :,.)_`>\n                    :/ `     ||/)\n                    (_.).__,-` |\\\n                    /( `.``   `| :\n                    \\\'`-.)  `  ; ;\n                    | `       /-<\n                    |     `  /   `.\n    ,-_-..____     /|  `    :__..-'\\\n   /,'-.__\\\\  ``-./ :`      ;       \\\n   `\ `\  `\\\\  \ :  (   `  /  ,   `. \\\n     \` \   \\\\   |  | `   :  :     .\ \\\n      \ `\_  ))  :  ;     |  |      ): :\n     (`-.-'\ ||  |\ \   ` ;  ;       | |\n      \-_   `;;._   ( `  /  /_       | |\n       `-.-.// ,'`-._\__/_,'         ; |\n          \:: :     /     `     ,   /  |\n           || |    (        ,' /   /   |\n           ||                ,'   /    |\n");
+}
 void readFromArduino(){
-	
+	int gand=0;
 	while(read(tty_fd,&c,1)<1);
 		printf("\nARDUINO: ");
 		printf("%c", c);
-		while(c != '\r'){
+		if(c=='Y'){
+			gand=1;
+	
+		}
+		while(c != '\r' ){
 			if(read(tty_fd,&c,1)>0){
 				printf("%c", c);
 			}
 		}
+		if(gand){
+		printGandalf();}
 		printf("\n");
 	
 	
