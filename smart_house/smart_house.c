@@ -231,7 +231,7 @@ channel_name[8][3]=NULL;
 					}
 					UART_putString((uint8_t*)"My new name is: ");
 					UART_putString((uint8_t*)name);
-					UART_putString((uint8_t*)"\n");
+					UART_putString((uint8_t*)"\n\r");
 				}
 				if(testo[1] == '1'){//01 set_channel_name
 
@@ -249,7 +249,7 @@ channel_name[8][3]=NULL;
           //01Nname*channel_name
           num_channel = (testo[2] - '0');
           if(num_channel>7 || num_channel<0){
-            UART_putString((uint8_t*)"Channel not valid");
+            UART_putString((uint8_t*)"Channel not valid\n\r");
             return 0;
           }
 
@@ -284,7 +284,7 @@ channel_name[8][3]=NULL;
 
 
           if(flagarduino < 1){
-			  UART_putString((uint8_t*)"Tha's not my name");
+			  UART_putString((uint8_t*)"Tha's not my name\n\r");
           }
           else{
 
@@ -295,6 +295,11 @@ channel_name[8][3]=NULL;
 			  j =0;
 
             while(curr_channel[j] != NULL && channel_name[i][j] != NULL){
+				
+				if(curr_channel[0] == 'N' && curr_channel[1] == 'O' && curr_channel[2] == 'N' && curr_channel[3] ==  'E'&& curr_channel[4] == NULL){
+					flagchannel = 2;
+					break;
+				}
 
 				if(curr_channel[j] == channel_name[i][j]){
 					flagchannel = 1;
@@ -311,10 +316,15 @@ channel_name[8][3]=NULL;
 				 break;
 			 }
           }
-
-          if(flagchannel > 0){
-			  UART_putString((uint8_t*)"Channel name already exist");
+          
+          if(flagchannel == 2){
+			  UART_putString((uint8_t*)"You shall NONE pass!(NONE = invalid name)\n\r");
 		  }
+
+          if(flagchannel == 1){
+			  UART_putString((uint8_t*)"Channel name already exist\n\r");
+		  }
+		  
 		  else{
 
 
@@ -331,7 +341,7 @@ channel_name[8][3]=NULL;
 			UART_putChar((uint8_t) testo[2]);
 			UART_putString((uint8_t*)" new name is: ");
 			UART_putString((uint8_t*)channel_name[num_channel]);
-			UART_putString((uint8_t*)"\n");
+			UART_putString((uint8_t*)"\n\r");
 			}
 
 		}
@@ -365,6 +375,11 @@ channel_name[8][3]=NULL;
 			  k =0;
 
             while(channel_sel[k] != NULL && channel_name[i][k] != NULL){
+				
+				if(channel_sel[0] == 'N' && channel_sel[1] == 'O' && channel_sel[2] == 'N' && channel_sel[3] ==  'E'&& channel_sel[5] == NULL){
+					flag = 0;
+					break;
+				}
 
 				if(channel_sel[k] == channel_name[i][k]){
 					flag = 1;
@@ -386,7 +401,7 @@ channel_name[8][3]=NULL;
           char cnum_channel = '0';
           cnum_channel += num_channel;
 
-          if(flag < 1) UART_putString((uint8_t*)"Channel name doesn't exist");
+          if(flag < 1) UART_putString((uint8_t*)"Channel name doesn't exist\n\r");
 
           else{
 
@@ -410,14 +425,14 @@ channel_name[8][3]=NULL;
             UART_putChar((uint8_t) testo[2+j]);
             UART_putChar((uint8_t) testo[2+j+1]);
             UART_putChar((uint8_t) testo[2+j+2]);
-            UART_putString((uint8_t*)"\n");
+            UART_putString((uint8_t*)"\n\r");
 			}
 		if(num_channel == 8){
 			UART_putString((uint8_t*)"ALL channels are now setted to: ");
 			UART_putChar((uint8_t) testo[2+j]);
             UART_putChar((uint8_t) testo[2+j+1]);
             UART_putChar((uint8_t) testo[2+j+2]);
-            UART_putString((uint8_t*)"\n");
+            UART_putString((uint8_t*)"\n\r");
 			}
           }
         }
@@ -447,7 +462,7 @@ channel_name[8][3]=NULL;
 
 
           if(flagarduino < 1){
-			  UART_putString((uint8_t*)"Tha's not my name");
+			  UART_putString((uint8_t*)"Tha's not my name\n\r");
           }
           else{
 			  UART_putString((uint8_t*)"Device name: ");
@@ -465,29 +480,26 @@ channel_name[8][3]=NULL;
 				  int unita = (channel_value[i] - (centinaia*100) -(decina*10));
 				  UART_putChar((uint8_t*)(unita+'0'));
 				  }
+				  UART_putString((uint8_t*)"\r");
 			}
 		}
 			if(testo[1] == '4')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '5')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '6')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '7')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '8')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '9')
-					UART_putString((uint8_t*)"Function not yet implemented\n");
+					UART_putString((uint8_t*)"Function not yet implemented\n\r");
         }
 
 
 			else{
-          if(testo[0] == NULL) UART_putString((uint8_t*)"testo[0] == NULL\n");
-					UART_putString((uint8_t*)"diobelloesimpatico\n");
-					UART_putChar((uint8_t)testo[0]);
-          UART_putChar((uint8_t)testo[1]);
-          UART_putString((uint8_t*)"\n");
+          if(testo[0] == NULL) UART_putString((uint8_t*)"Function not yet implemented\n\r");
         }
 
 

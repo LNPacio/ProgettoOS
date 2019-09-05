@@ -14,7 +14,7 @@ int shell_set_channel_name(char **args);
 int shell_query_channels(char **args);
 int shell_help(char **args);
 int shell_exit(char **args);
-void readFromArduino(char* buf[256]);
+void readFromArduino();
 
 //dichiarazione variabili globali
 char device_name[16];
@@ -75,6 +75,8 @@ int shell_query_channels(char **args){
 		//invio dati
 		ret = write(tty_fd, buffer, i+3);
 		if(ret < 0) printf("Errore nella write buffer\n");
+		
+		readFromArduino();
   }
   return 1;
 }
@@ -110,20 +112,7 @@ int shell_set_channel_value(char **args){
 		if(ret < 0) printf("Errore nella write buffer\n");
 
 
-    /*ret = write(tty_fd, code, 2);
-		if(ret < 0) printf("Errore nella write code\n");
-
-    int i = 0;
-		while(args[1][i] != NULL){
-		i++;
-		}
-
-    ret = write(tty_fd, args[1], i);
-		if(ret < 0) printf("Errore nella write\n");
-
-
-    ret = write(tty_fd, args[2], 3);
-		if(ret < 0) printf("Errore nella write\n");*/
+    readFromArduino();
     }
   return 1;
 }
@@ -168,29 +157,12 @@ int shell_set_channel_name(char **args){
     ret = write(tty_fd, buffer, j+i+5);
 		if(ret < 0) printf("Errore nella write code\n");
 
-		//invio codice istruzione
-		/*ret = write(tty_fd, code, 2);
-		if(ret < 0) printf("Errore nella write code\n");
-		//invio numero switch
-		ret = write(tty_fd, &num_switch, 1);
-    fprintf("%c",&num_switch); //non printa nulla
-		if(ret < 0) printf("Errore nella write\n");
-		//invio nome switch
-		int i = 0;
-		while(args[3][i] != NULL){
-		i++;
-		}
-    if (i>16){
-      fprintf(stderr, "channel name can't be longer than 16" );
-      }
-
-		ret = write(tty_fd, args[3], i+1);
-		if(ret < 0) printf("Errore nella write\n");
-  */
+		readFromArduino();
     }
 
 
   }
+  
   return 1;
 }
 
@@ -202,8 +174,7 @@ int shell_set_name(char **args){
 	if (args[1] == NULL) {
 		fprintf(stderr, "shell: expected argument to \"set_name\" CONTRLLER_NAME\n");
 	} else {
-    //if (chdir(args[1]) != 0) {
-    //}
+    
 		ret = write(tty_fd, code, 2);
 		if(ret < 0) printf("Errore nella write code\n");
 		int i = 0;
@@ -221,6 +192,8 @@ int shell_set_name(char **args){
 
 		ret = write(tty_fd, args[1], i+1);
 		if(ret < 0) printf("Errore nella write\n");
+		
+		readFromArduino();
 	}
 	return 1;
 }
@@ -378,37 +351,32 @@ void shell_loop(void)
 
   do {
 	//sleep(1);
-	char buf[256];
 	
     printf("smart_house >> ");
     line = shell_read_line();
     args = shell_split_line(line);
     status = shell_execute(args);
     
-    readFromArduino(buf);
-    printf("%s\n", buf);
+    
 
     free(line);
     free(args);
   } while (status);
 }
 
-void readFromArduino(char *buf[256]){
+void readFromArduino(){
 	
-	int ret;
-	int bytes_read = 0;
+	while(read(tty_fd,&c,1)<1);
+		printf("\nARDUINO: ");
+		printf("%c", c);
+		while(c != '\r'){
+			if(read(tty_fd,&c,1)>0){
+				printf("%c", c);
+			}
+		}
+		printf("\n");
 	
-	while(read(tty_fd, buf + bytes_read, 1)<1);
-	bytes_read++;
-    
-    do {
-        ret = read(tty_fd, buf + bytes_read, 1);
-        //if (ret == -1 && errno == EINTR) continue;
-        //if (ret == -1) handle_error("Cannot read from FIFO");
-        //if (ret ==  0) handle_error("Process has closed the FIFO unexpectedly! Exiting...\n");
-        // we use post-increment on bytes_read so that we first read the
-        // byte that has just been written, then we do the increment
-    } while(buf[bytes_read++] != '\0');
+	
 	/*if(read(tty_fd,&c,1)>0){
 		printf("\nARDUINO: ");
 		printf("%c", c);
