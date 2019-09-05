@@ -1,31 +1,38 @@
-Guidelines for projects:
-SmartHouse [2-3 w/BT]
-   Arduino: Build a smart switch/dimmer/controller that can be controlled
-            by bluetooth. We don't use bluetooth, we use a serial first.
+Per avviare il programma è necessario (in ordine):
+1-caricare su arduinoMEGA2560 il contenuto della cartella "smart_house" (make smart_house.hex da terminale);
+2-compilare il contenuto della cartella "shell" (gcc -o NOME shell_3.c) e poi eseguire il file.
 
-            The arduino should support:
-            8 switches/dimmers (simulate tghem with LEDS).		//gestione dell'intensità di corrente dei pin
-            8 ADC channels					        //lettore intensità di corrente dei PWM impostati prima
-            8 Digital inputs					        //verifica se un dispositivo è collegato o meno all'arduino
+Le funzioni che ci permettono di controllare il dispositvo da terminale nel migliore
+dei modi sono le seguenti:
 
-            Define a protocol to
-            - Configure the device (give it a "name"),
-              set which channels are used, and what is the name of each channel
+>> set_name NOME_DA_ASSEGNARE_ALLA_CENTRALINA
+Viene assegnato un nome alla centralina permettendo di gestirne diverse tramite
+la stessa shell assegnando nomi differenti.
 
-            - Send commands to the device (based on the "name");
-              Upon correct execution of a command, the device should send back
-              an "ack" message.
+>> set_channel_name NOME_ARDUINO switch_N NOME_DEL_CANALE
+Funzione con lo scopo di assegnare un nome a uno switch, N è un numero
+compreso tra 0 e 7 , il NOME_ARDUINO è quello impostato con la funzione
+set_name e NOME_DEL_CANALE è il nome da assegnare a quello switch.
 
-            - receive readings from the device (based on the "name");
+>> set_channel_value NOME_DEL_CANALE 255
+Assegnazione di un valore compreso tra 000 e 255, in modo da impostare a quel
+canale al quale abbiamo assegnato il nome in precedenza, quella precisa uscita; è
+possibile inoltre usare, al posto del nome del canale, la stringa speciale ALL che
+imposta il valore a tutti i canali di tutti i dispositivi collegati.
 
+>> exit
+In modo da chiudere correttamente la comunicazione tra i due dispositivi
 
-   From PC: Implement a "controller" program that can baptize the device,
-            and interact with it, from command line
+>> help
+Un aiuto nella shell con tutti i comandi built-in.
 
-            eg
-
-            $> smart_house_host set_name kitchen_controller
-            $> smart_house set_channel_name kitchen_controller switch_0 "top_fridge"
-            $> smart_house set_channel_value "top_fridge" 1
-            $> smart_house kitchen_controller query_channels
+I seguenti switch con i propri PIN sull’arduino :
+switch_0 PIN-12
+switch_1 PIN-11
+switch_2 PIN-10
+switch_3 PIN-07
+switch_4 PIN-06
+switch_5 PIN-05
+switch_6 PIN-04
+switch_7 PIN-02
 
