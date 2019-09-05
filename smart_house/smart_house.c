@@ -129,18 +129,27 @@ void on_off_value(int num_switch, int value){
         break;
 
       case 5 :
-        OCR4A= value;
+        OCR4B= value;
         break;
 
       case 6 :
-        OCR4B= value;
+        OCR4A= value;
         break;
 
       case 7 :
         OCR0B= value;
         break;
-
+      case 8:
+        OCR0B= value;
+        OCR4A= value;
+        OCR4B= value;
+        OCR2B= value;
+        OCR2A= value;
+        OCR1A= value;
+        OCR1B= value;
+        OCR0A= value;
       default:
+      //diocane
         break;
     }
 }
@@ -155,15 +164,15 @@ int main(void){
   char testo[256];
 
   //allocazione variabile per nomi switch
-  char** channel_name = (char**) malloc(sizeof(char*) * 8);
-  for(int i = 0; i<8; i++){
+  char** channel_name = (char**) malloc(sizeof(char*) * 9);
+  for(int i = 0; i<9; i++){
     channel_name[i] = (char*) malloc(sizeof(char) * 16);
   }
 
-  int channel_value[8];
+  int channel_value[9];
 
   //riempimento nomi e valori
-  for(int i =0; i<8; i++){
+  for(int i =0; i<9; i++){
 	  channel_value[i] = 0;
 	  channel_name[i][0]='N';
 	  channel_name[i][1]='O';
@@ -172,7 +181,10 @@ int main(void){
 	  for(int j = 4; j<16; j++)
 	  channel_name[i][j]= NULL;
   }
-
+channel_name[8][0]='A';
+channel_name[8][1]='L';
+channel_name[8][2]='L';
+channel_name[8][3]=NULL;
   char name[MAX_BUF];
   for (int i=0;i<MAX_BUF;i++){
   name[i]=NULL;
@@ -342,7 +354,7 @@ int main(void){
 
 
           int k;
-          for(int i =0; i<8; i++){
+          for(int i =0; i<9; i++){
 			  k =0;
 
             while(channel_sel[k] != NULL && channel_name[i][k] != NULL){
@@ -374,6 +386,12 @@ int main(void){
           value = (testo[2+j]-'0')*100 + (testo[2+j+1]-'0')*10 + (testo[2+j+2]-'0');
 
           channel_value[num_channel] = value;
+
+          if(num_channel == 8){
+            for(int i =0; i<8;i++){
+              channel_value[i] = value;
+            }
+          }
 
           on_off_value(num_channel, value);
 
