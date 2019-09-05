@@ -77,11 +77,13 @@ void init_pwm(){
   TCCR0A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);//|(1<<CS00);
   TCCR1A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
   TCCR2A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
+  TCCR3A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
   TCCR4A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
 
   TCCR0B |= (1<<CS00);
   TCCR1B |= (1<<CS00);
   TCCR2B |= (1<<CS00);
+  TCCR3B |= (1<<CS00);
   TCCR4B |= (1<<CS00);
 
   // make sure to make OC.. pin as output pin
@@ -93,6 +95,11 @@ void init_pwm(){
   DDRH |= (1<<6); //pin 09
   DDRH |= (1<<4); //pin 07
   DDRH |= (1<<3); //pin 06
+  
+  DDRE |= (1<<4); //pin 02
+  DDRE |= (1<<3); //pin 05
+  
+  
 
   OCR0A=0x00; //pin 13 -- switch_0
   OCR1B=0x00; //pin 12 -- switch_1
@@ -102,6 +109,9 @@ void init_pwm(){
   OCR4A=0x00; //pin 07 -- switch_5
   OCR4B=0x00; //pin 06 -- switch_6
   OCR0B=0x00; //pin 04 -- switch_7
+  
+  OCR3A=0x00; //pin 05 -- switch_0
+  OCR3B=0x00; //pin 05 -- switch_4
 
 }
 
@@ -109,7 +119,7 @@ void init_pwm(){
 void on_off_value(int num_switch, int value){
     switch(num_switch){
       case 0 :
-        OCR0A= value;    //alto
+        OCR3A= value;    //alto
         break;
 
       case 1 :
@@ -121,7 +131,7 @@ void on_off_value(int num_switch, int value){
         break;
 
       case 3 :
-        OCR2A= value;
+        OCR3B= value;
         break;
 
       case 4 :
@@ -147,7 +157,8 @@ void on_off_value(int num_switch, int value){
         OCR2A= value;
         OCR1A= value;
         OCR1B= value;
-        OCR0A= value;
+        OCR3A= value;
+        OCR3B= value;
       default:
       //diocane
         break;
