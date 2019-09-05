@@ -14,7 +14,7 @@ int shell_set_channel_name(char **args);
 int shell_query_channels(char **args);
 int shell_help(char **args);
 int shell_exit(char **args);
-void readFromArduino();
+void readFromArduino(char* buf[256]);
 
 //dichiarazione variabili globali
 char device_name[16];
@@ -27,7 +27,7 @@ struct termios tio;
 	unsigned char c='D';
 char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name pippofranco",
   "set_channel_name\t to set a name for a switch from 0 to 7 \neg: set_channel_name pippofranco switch_3 platinet",
-  "set_channel_value\t to set a value for a switch from 0 to 255\teg: set_channel_value platinet 069",
+  "set_channel_value\t to set a value for a switch from 0 to 255\teg: set_channel_value platinet 069\nYou can use ALL as instead of NAME_SWITCH to set all Swtiches to at the same value\neg: set_channel_value ALL 255",
   "query_channels\t to see all the switches names and values from a device\neg:query_channels platinet",
   "help\t\t\t to see this easy tutorial",
   "exit\t\t\t to exit from the shell"};
@@ -377,27 +377,46 @@ void shell_loop(void)
   int status;
 
   do {
-	sleep(1);
-	readFromArduino();
+	//sleep(1);
+	char buf[256];
+	
     printf("smart_house >> ");
     line = shell_read_line();
     args = shell_split_line(line);
     status = shell_execute(args);
+    
+    readFromArduino(buf);
+    printf("%s\n", buf);
 
     free(line);
     free(args);
   } while (status);
 }
 
-void readFromArduino(){
-	if(read(tty_fd,&c,1)>0){
+void readFromArduino(char *buf[256]){
+	
+	int ret;
+	int bytes_read = 0;
+	
+	while(read(tty_fd, buf + bytes_read, 1)<1);
+	bytes_read++;
+    
+    do {
+        ret = read(tty_fd, buf + bytes_read, 1);
+        //if (ret == -1 && errno == EINTR) continue;
+        //if (ret == -1) handle_error("Cannot read from FIFO");
+        //if (ret ==  0) handle_error("Process has closed the FIFO unexpectedly! Exiting...\n");
+        // we use post-increment on bytes_read so that we first read the
+        // byte that has just been written, then we do the increment
+    } while(buf[bytes_read++] != '\0');
+	/*if(read(tty_fd,&c,1)>0){
 		printf("\nARDUINO: ");
 		printf("%c", c);
 		while(read(tty_fd,&c,1)>0){
 			printf("%c", c);
 		}
 		printf("\n");
-	}
+	}*/
 }
 
 int main(int argc, char **argv){

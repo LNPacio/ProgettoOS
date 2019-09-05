@@ -95,23 +95,20 @@ void init_pwm(){
   DDRH |= (1<<6); //pin 09
   DDRH |= (1<<4); //pin 07
   DDRH |= (1<<3); //pin 06
-  
-  DDRE |= (1<<4); //pin 02
   DDRE |= (1<<3); //pin 05
+  DDRE |= (1<<4); //pin 02
   
   
 
-  OCR0A=0x00; //pin 13 -- switch_0
-  OCR1B=0x00; //pin 12 -- switch_1
-  OCR1A=0x00; //pin 11 -- switch_2
-  OCR2A=0x00; //pin 10 -- switch_3
-  OCR2B=0x00; //pin 09 -- switch_4
-  OCR4A=0x00; //pin 07 -- switch_5
-  OCR4B=0x00; //pin 06 -- switch_6
-  OCR0B=0x00; //pin 04 -- switch_7
   
-  OCR3A=0x00; //pin 05 -- switch_0
-  OCR3B=0x00; //pin 05 -- switch_4
+  OCR1B=0x00; //pin 12 -- switch_0
+  OCR1A=0x00; //pin 11 -- switch_1
+  OCR2A=0x00; //pin 10 -- switch_2
+  OCR4B=0x00; //pin 05 -- switch_3
+  OCR4A=0x00; //pin 07 -- switch_4
+  OCR3A=0x00; //pin 06 -- switch_5
+  OCR0B=0x00; //pin 04 -- switch_6
+  OCR3B=0x00; //pin 02 -- switch_7
 
 }
 
@@ -119,41 +116,40 @@ void init_pwm(){
 void on_off_value(int num_switch, int value){
     switch(num_switch){
       case 0 :
-        OCR3A= value;    //alto
+        OCR1B= value;    //alto
         break;
 
       case 1 :
-        OCR1B= value;
-        break;
-
-      case 2 :
         OCR1A= value;
         break;
 
+      case 2 :
+        OCR2A= value;
+        break;
+
       case 3 :
-        OCR3B= value;
-        break;
-
-      case 4 :
-        OCR2B= value;
-        break;
-
-      case 5 :
         OCR4B= value;
         break;
 
-      case 6 :
+      case 4 :
         OCR4A= value;
         break;
 
-      case 7 :
+      case 5 :
+        OCR3A= value;
+        break;
+
+      case 6 :
         OCR0B= value;
+        break;
+
+      case 7 :
+        OCR3B= value;
         break;
       case 8:
         OCR0B= value;
         OCR4A= value;
         OCR4B= value;
-        OCR2B= value;
         OCR2A= value;
         OCR1A= value;
         OCR1B= value;
@@ -295,7 +291,7 @@ channel_name[8][3]=NULL;
           //controllo se il nome di un canale è uguale al nome selezionato
           int flagchannel = 0;
           int j;
-          for(int i =0; i<8; i++){
+          for(int i =0; i<9; i++){
 			  j =0;
 
             while(curr_channel[j] != NULL && channel_name[i][j] != NULL){
@@ -407,14 +403,22 @@ channel_name[8][3]=NULL;
           on_off_value(num_channel, value);
 
 
-
+		if(num_channel != 8){
             UART_putString((uint8_t*)"switch_");
             UART_putChar((uint8_t) cnum_channel);
-            UART_putString((uint8_t*)" valore: ");
+            UART_putString((uint8_t*)" value: ");
             UART_putChar((uint8_t) testo[2+j]);
             UART_putChar((uint8_t) testo[2+j+1]);
             UART_putChar((uint8_t) testo[2+j+2]);
             UART_putString((uint8_t*)"\n");
+			}
+		if(num_channel == 8){
+			UART_putString((uint8_t*)"ALL channels are now setted to: ");
+			UART_putChar((uint8_t) testo[2+j]);
+            UART_putChar((uint8_t) testo[2+j+1]);
+            UART_putChar((uint8_t) testo[2+j+2]);
+            UART_putString((uint8_t*)"\n");
+			}
           }
         }
         if(testo[1] == '3'){//03 query_channels
