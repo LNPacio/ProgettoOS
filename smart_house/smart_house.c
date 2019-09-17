@@ -74,7 +74,7 @@ void UART_putString(uint8_t* buf){
 
 void init_pwm(){
   // initialize timer0,timer1,timer2,timer4 in PWM mode
-  TCCR0A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);//|(1<<CS00);
+  TCCR0A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
   TCCR1A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
   TCCR2A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
   TCCR3A |= (1<<WGM00)|(1<<COM0A1)|(1<<COM0B1)|(1<<WGM01);
@@ -87,12 +87,12 @@ void init_pwm(){
   TCCR4B |= (1<<CS00);
 
   // make sure to make OC.. pin as output pin
-  DDRB |= (1<<7); //pin 13
+  
   DDRB |= (1<<6); //pin 12
   DDRB |= (1<<5); //pin 11
   DDRB |= (1<<4); //pin 10
   DDRG |= (1<<5); //pin 04
-  DDRH |= (1<<6); //pin 09
+ 
   DDRH |= (1<<4); //pin 07
   DDRH |= (1<<3); //pin 06
   DDRE |= (1<<3); //pin 05
@@ -336,6 +336,7 @@ channel_name[8][3]=NULL;
 
 			//svuotamento channel_value relativo
 			channel_value[num_channel] = 0;
+			on_off_value(num_channel, 0);
 
 			UART_putString((uint8_t*)curr_arduino);
 			UART_putString((uint8_t*)" -> switch_");
@@ -481,7 +482,7 @@ channel_name[8][3]=NULL;
 				  int unita = (channel_value[i] - (centinaia*100) -(decina*10));
 				  UART_putChar((uint8_t*)(unita+'0'));
 				  }
-				  UART_putString((uint8_t*)"\r");
+				  UART_putString((uint8_t*)"\n\r");
 			}
 		}
 			if(testo[1] == '4')

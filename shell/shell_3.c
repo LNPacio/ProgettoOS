@@ -27,7 +27,7 @@ struct termios tio;
 	unsigned char c='D';
 char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name pippofranco",
   "set_channel_name\t to set a name for a switch from 0 to 7 \neg: set_channel_name pippofranco switch_3 platinet",
-  "set_channel_value\t to set a value for a switch from 0 to 255\teg: set_channel_value platinet 069\nYou can use ALL as instead of NAME_SWITCH to set all Swtiches to at the same value\neg: set_channel_value ALL 255",
+  "set_channel_value\t to set a value for a switch from 0 to 255\neg: set_channel_value platinet 069\nYou can use ALL as instead of NAME_SWITCH to set all Swtiches to at the same value\neg: set_channel_value ALL 255",
   "query_channels\t to see all the switches names and values from a device\neg:query_channels platinet",
   "help\t\t\t to see this easy tutorial",
   "exit\t\t\t to exit from the shell"};
