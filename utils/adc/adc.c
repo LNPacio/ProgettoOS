@@ -6,6 +6,7 @@
 
 void init_analogic_input(){
       DIDR0 = 0x00;           //D.I. disabled on all ADC ports
+      PORTF = 0xFF;			// port F as input
       PRR0 &= ~(1<<PRADC);     //Power Reduction ADC bit disable
       ADMUX = 0x61;           //AVcc, right adjusted and PIN A1
       ADCSRA = 0xcF;          //ADC Enabled, no auto trigger, Iterrupt enabled, 128 prescaller
