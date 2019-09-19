@@ -188,17 +188,10 @@ int shell_get_adc_value(char **args){
 	  }
 
     //codice funzione
-	  buffer[0] = '1';
-	  buffer[1] = '2';
+	  buffer[0] = '0';
+	  buffer[1] = '5';
 
-	  int i = 0;
-		while(args[1][i] != NULL){
-		buffer[2+i] = args[1][i];
-		i++;
-		}
-		buffer[2+i] = args[2][0];
-
-		ret = write(tty_fd, buffer, i+6);
+		ret = write(tty_fd, buffer, 3);
 		if(ret < 0) printf("Errore nella write buffer\n");
 
 

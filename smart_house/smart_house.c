@@ -50,6 +50,7 @@ void on_off_value(int num_switch, int value){
         OCR1B= value;
         OCR3A= value;
         OCR3B= value;
+        break;
       default:
       //diocane
         break;
@@ -379,22 +380,29 @@ channel_name[8][3]=NULL;
 				  UART_putChar((uint8_t*)(decina+'0'));
 				  int unita = (channel_value[i] - (centinaia*100) -(decina*10));
 				  UART_putChar((uint8_t*)(unita+'0'));
-				  }
-				  UART_putString((uint8_t*) "\nADC value: ");
-				  int valoreADC = read_analog();
-				  int centinaia = valoreADC/100;
-				  UART_putChar((uint8_t*)(centinaia+'0'));
-				  int decina = (valoreADC - (centinaia*100))/10;
-				  UART_putChar((uint8_t*)(decina+'0'));
-				  int unita = (valoreADC - (centinaia*100) -(decina*10));
-				  UART_putChar((uint8_t*)(unita+'0'));
-				  UART_putString((uint8_t*)"\n\r");
+				}
+			  
+			  UART_putString((uint8_t*)"\n\r");
 			}
 		}
 			if(testo[1] == '4')
 					UART_putString((uint8_t*)"Function not yet implemented\n\r");
-				if(testo[1] == '5')
-					UART_putString((uint8_t*)"Function not yet implemented\n\r");
+				if(testo[1] == '5'){
+					for(int ch = 0; ch<8; ch++){
+						UART_putString((uint8_t*) "ADC ");
+						UART_putChar((uint8_t*)(ch+'0'));
+						UART_putString((uint8_t*) " value: ");
+						int valoreADC = read_analog(ch);
+						int centinaia = valoreADC/100;
+						UART_putChar((uint8_t*)(centinaia+'0'));
+						int decina = (valoreADC - (centinaia*100))/10;
+						UART_putChar((uint8_t*)(decina+'0'));
+						int unita = (valoreADC - (centinaia*100) -(decina*10));
+						UART_putChar((uint8_t*)(unita+'0'));
+						UART_putString((uint8_t*)"\n");
+					}
+					UART_putString((uint8_t*)"\n\r");
+				}
 				if(testo[1] == '6')
 					UART_putString((uint8_t*)"Function not yet implemented\n\r");
 				if(testo[1] == '7')
