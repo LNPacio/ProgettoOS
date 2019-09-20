@@ -18,6 +18,7 @@ int shell_help(char **args);
 int install_ssh(char **args);
 int start_ssh(char **args);
 int stop_ssh(char **args);
+int reset(char **args);
 int shell_quit(char **args);
 void readFromArduino();
 
@@ -40,6 +41,7 @@ char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name c
   "start_ssh to start an ssh server so you will be able to control the device from yor smartphone",
   "stop_ssh to interrupt the comunication with your smartphone",
   "help\t\t\t to see this easy tutorial",
+  "reset to clean the arduino memory",
   "quit\t\t\t to exit from the shell"};
 char *builtin_str[] = {
   "set_name",
@@ -52,6 +54,7 @@ char *builtin_str[] = {
   "install_ssh",
   "start_ssh",
   "stop_ssh",
+  "reset",
   "quit"
 };
 
@@ -66,6 +69,7 @@ int (*builtin_func[]) (char **) = {
   &install_ssh,
   &start_ssh,
   &stop_ssh,
+  &reset,
   &shell_quit
 };
 
@@ -217,6 +221,24 @@ int shell_set_pwm_name(char **args){
 
   return 1;
 }
+
+
+
+
+
+
+int reset(char **args){
+    int ret;
+    //codice funzione
+	  buffer[0] = '0';
+	  buffer[1] = '6';
+
+    ret = write(tty_fd, buffer, 3);
+		if(ret < 0) printf("Errore nella write code\n");
+    		readFromArduino();
+
+  return 1;
+}
 ////ADC FUNCTIONS
 int shell_get_adc_value(char **args){
 	int ret;
@@ -234,7 +256,7 @@ int shell_get_adc_value(char **args){
     //codice funzione
 	  buffer[0] = '0';
 	  buffer[1] = '5';
-	  
+
 	  //inserimento nome nel buffer
 	  int i = 0;
 	  while(args[1][i] != NULL){

@@ -1,15 +1,16 @@
 #include "uart.h"
 #include "pwm.h"
 #include "adc.h"
-
-
+#include "eeprom.h"
+#include <stdlib.h>
+#include <stdio.h>
 #define BAUD 19600
 #define MYUBRR (F_CPU/16/BAUD-1)
 #define MAX_BUF 256
 
 uint8_t buf[MAX_BUF];
 char testo[256];
-char name[16];
+char name[256];
 struct UART* uart;
 
 void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
@@ -191,7 +192,7 @@ int main(void){
 		pwm_channel_name[i][1]='O';
 		pwm_channel_name[i][2]='N';
 		pwm_channel_name[i][3]='E';
-	
+
 		adc_channel_name[i][0]='N';
 		adc_channel_name[i][1]='O';
 		adc_channel_name[i][2]='N';
@@ -211,10 +212,28 @@ int main(void){
 	adc_channel_name[8][3]=NULL;
 
 
-	for (int i=0;i<16;i++){
+	for (int i=0;i<MAX_BUF;i++){
 		name[i]=NULL;
 	}
+	EEPROM_read(name,0,16);
+	char val[3];
 
+	for (int j=0;j<8;j++){
+		itoa(pwm_channel_value[j],val,10);
+		EEPROM_read(pwm_channel_name[j],16+16*j,16);
+		EEPROM_read(adc_channel_name[j],16*9+16*j,16);
+		EEPROM_read(val,16*17+j*3,3);
+		pwm_channel_value[j]=atoi(val);
+		if(pwm_channel_name[j]==NULL)	EEPROM_write(16+16*j,"NONE",16);
+		if(adc_channel_name[j]==NULL) EEPROM_write(16*9+16*j,"NONE",16);
+		if(pwm_channel_name[j]==NULL) EEPROM_write(16*17+j*3,"000",3);
+
+		EEPROM_read(val,16*17+j*3,3);
+		EEPROM_read(pwm_channel_name[j],16+16*j,16);
+		EEPROM_read(adc_channel_name[j],16*9+16*j,16);
+		pwm_channel_value[j]=atoi(val);
+	}
+for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
     while(1) {
 
 		//lettura buffer e memorizzazione in altra variabile
@@ -236,7 +255,7 @@ int main(void){
 					testo[i]=carattere(buf[i]);
 					name[i] = NULL;
 				}
-				for (int i=0;i<16;i++){
+				for (int i=0;i<MAX_BUF;i++){
 					if(testo[i+2] == '\0') break;
 					name[i]=testo[i+2];
 				}
@@ -424,8 +443,11 @@ int main(void){
 					UART_putString(uart,(uint8_t*)"\n\r");
 				}
 			}
-			if(testo[1] == '6')
-				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
+			if(testo[1] == '6'){
+			UART_putString(uart,(uint8_t*)"Device nfasaughusfs\r");
+				EEPROM_write(0,'\0',2000);
+				goto L;
+				}
 			if(testo[1] == '7')
 				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
 			if(testo[1] == '8')
@@ -436,6 +458,13 @@ int main(void){
         else{
 			UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
         }
-        _delay_ms(500); // from delay.h, wait 0.5 sec
+			/*	for (int j=0;j<8;j++){
+					itoa(pwm_channel_value[j],val,10);
+					EEPROM_write(16+16*j,pwm_channel_name[j],16);
+					EEPROM_write(16*9+16*j,adc_channel_name[j],16);
+					EEPROM_write(16*17+j*3,val,3);
+				}
+*/
+  L:      _delay_ms(500); // from delay.h, wait 0.5 sec
 	}
 }
