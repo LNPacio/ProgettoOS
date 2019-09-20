@@ -6,7 +6,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <termios.h>
-
+#include "server.h"
 
 int shell_set_name(char **args);
 int shell_set_pwm_value(char **args);
