@@ -9,7 +9,7 @@
 
 uint8_t buf[MAX_BUF];
 char testo[256];
-char name[MAX_BUF];
+char name[16];
 struct UART* uart;
 
 void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
@@ -211,7 +211,7 @@ int main(void){
 	adc_channel_name[8][3]=NULL;
 
 
-	for (int i=0;i<MAX_BUF;i++){
+	for (int i=0;i<16;i++){
 		name[i]=NULL;
 	}
 
@@ -236,7 +236,7 @@ int main(void){
 					testo[i]=carattere(buf[i]);
 					name[i] = NULL;
 				}
-				for (int i=0;i<MAX_BUF;i++){
+				for (int i=0;i<16;i++){
 					if(testo[i+2] == '\0') break;
 					name[i]=testo[i+2];
 				}
