@@ -222,8 +222,8 @@ int shell_set_adc_name(char **args){
 	  }
 
     //codice funzione
-	  buffer[0] = '1';
-	  buffer[1] = '1';
+	  buffer[0] = '0';
+	  buffer[1] = '4';
     buffer[2] = num_switch;
     //arg[1]= arduinoname arg[2]=switch arg[3]=channel name
 	  int i = 0;
