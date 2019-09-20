@@ -1,29 +1,121 @@
-#include <util/delay.h>
-#include <stdio.h>
-#include <stdint.h>
+#include "buffer_utils.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
+#include <string.h>
+#include <util/atomic.h>
+#include <util/delay.h>
 
+
+
+#define UART_BUFFER_SIZE 256
 #define BAUD 19600
 #define MYUBRR (F_CPU/16/BAUD-1)
-#define MAX_BUF 256
 
-void UART_init(void){
-  // Set baud rate
-  UBRR0H = (uint8_t)(MYUBRR>>8);
-  UBRR0L = (uint8_t)MYUBRR;
+typedef struct UART {
+  int tx_buffer[UART_BUFFER_SIZE];
+  volatile uint8_t tx_start;
+  volatile uint8_t tx_end;
+  volatile uint8_t tx_size;
 
-  UCSR0C = (1<<UCSZ01) | (1<<UCSZ00); /* 8-bit dataa */
-  UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);   /* Enable RX and TX */
+  int rx_buffer[UART_BUFFER_SIZE];
+  volatile uint8_t rx_start;
+  volatile uint8_t rx_end;
+  volatile uint8_t rx_size;
+  
+  int baud;
+  int uart_num; // hardware uart;
+} UART;
 
+static UART uart_0;
+
+struct UART* UART_init(const char* device __attribute__((unused)), uint32_t baud) {
+	
+	
+	UBRR0H = (uint8_t)(MYUBRR>>8);
+	UBRR0L = (uint8_t)MYUBRR;
+	
+	
+  UART* uart=&uart_0;
+  uart->uart_num=0;
+  
+  uart->tx_start=0;
+  uart->tx_end=0;
+  uart->tx_size=0;
+  uart->rx_start=0;
+  uart->rx_end=0;
+  uart->rx_size=0;
+
+  UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */ 
+  UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(RXCIE0);   /* Enable RX and TX */  
+  sei();  
+  return &uart_0;
 }
 
-void UART_putChar(uint8_t c){
-  // wait for transmission completed, looping on status bit
-  while ( !(UCSR0A & (1<<UDRE0)) );
-
-  // Start transmission
-  UDR0 = c;
+// returns the free space in the buffer
+int UART_rxbufferSize(struct UART* uart __attribute__((unused))) {
+  return UART_BUFFER_SIZE;
 }
+ 
+// returns the free occupied space in the buffer
+int  UART_txBufferSize(struct UART* uart __attribute__((unused))) {
+  return UART_BUFFER_SIZE;
+}
+
+// number of chars in rx buffer
+int UART_rxBufferFull(UART* uart) {
+  return uart->rx_size;
+}
+
+// number of chars in rx buffer
+int UART_txBufferFull(UART* uart) {
+  return uart->tx_size;
+}
+
+// number of free chars in tx buffer
+int UART_txBufferFree(UART* uart){
+  return UART_BUFFER_SIZE-uart->tx_size;
+}
+
+void UART_putChar(struct UART* uart, uint8_t c) {
+  // loops until there is some space in the buffer
+  while (uart->tx_size>=UART_BUFFER_SIZE);
+  ATOMIC_BLOCK(ATOMIC_FORCEON){
+    uart->tx_buffer[uart->tx_end]=c;
+    BUFFER_PUT(uart->tx, UART_BUFFER_SIZE);
+  }
+  UCSR0B |= _BV(UDRIE0); // enable transmit interrupt
+}
+
+
+uint8_t UART_getChar(struct UART* uart){
+  while(uart->rx_size==0);
+  uint8_t c;
+  ATOMIC_BLOCK(ATOMIC_FORCEON){
+    c=uart->rx_buffer[uart->rx_start];
+    BUFFER_GET(uart->rx, UART_BUFFER_SIZE);
+  }
+  return c;
+}
+
+
+ISR(USART0_RX_vect) {
+  uint8_t c=UDR0;
+  if (uart_0.rx_size<UART_BUFFER_SIZE){
+    uart_0.rx_buffer[uart_0.rx_end] = c;
+    BUFFER_PUT(uart_0.rx, UART_BUFFER_SIZE);
+  }
+}
+
+ISR(USART0_UDRE_vect){
+  if (! uart_0.tx_size){
+    UCSR0B &= ~_BV(UDRIE0);
+  } else {
+    UDR0 = uart_0.tx_buffer[uart_0.tx_start];
+    BUFFER_GET(uart_0.tx, UART_BUFFER_SIZE);
+  }
+}
+
+
 char carattere(uint8_t c){
   // wait for transmission completed, looping on status bit
   while ( !(UCSR0A & (1<<UDRE0)) );
@@ -33,21 +125,12 @@ char carattere(uint8_t c){
 
 }
 
-uint8_t UART_getChar(void){
-  // Wait for incoming data, looping on status bit
-  while ( !(UCSR0A & (1<<RXC0)) );
 
-  // Return the data
-  return UDR0;
 
-}
-
-// reads a string until the first newline or 0
-// returns the size read
-uint8_t UART_getString(uint8_t* buf){
+uint8_t UART_getString(uint8_t* buf, struct UART* uart){
   uint8_t* b0=buf; //beginning of buffer
   while(1){
-    uint8_t c=UART_getChar();
+    uint8_t c=UART_getChar(uart);
     *buf=c;
     ++buf;
     // reading a 0 terminates the string
@@ -63,9 +146,10 @@ uint8_t UART_getString(uint8_t* buf){
   }
 }
 
-void UART_putString(uint8_t* buf){
+
+void UART_putString(struct UART* uart, uint8_t* buf){
   while(*buf){
-    UART_putChar(*buf);
+    UART_putChar(uart, *buf);
     ++buf;
   }
 }

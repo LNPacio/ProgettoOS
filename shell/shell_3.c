@@ -15,7 +15,10 @@ int shell_get_adc_value(char **args);
 int shell_set_adc_name(char **args);
 int shell_query_channels(char **args);
 int shell_help(char **args);
-int shell_exit(char **args);
+int install_ssh(char **args);
+int start_ssh(char **args);
+int stop_ssh(char **args);
+int shell_quit(char **args);
 void readFromArduino();
 
 //dichiarazione variabili globali
@@ -30,11 +33,14 @@ struct termios tio;
 char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name cucina",
   "set_pwm_name\t to set a name for a PWM from 0 to 7 \neg: set_pwm_name cucina switch_3 microonde",
   "set_pwm_value\t to set a value for a switch from 0 to 255\neg: set_pwm_value microonde 125\nYou can use ALL instead of NAME_SWITCH \neg: set_pwm_value ALL 255",
-  "set_adc_name\t to set a name for an ADC from 0 to 7\n eg: set_adc_name cucina temperatura",
-  "get_adc_value\t to get a value from the adc \neg: get_adc_value cucina temperatura",
+  "set_adc_name\t to set a name for an ADC from 0 to 7\n eg: set_adc_name cucina switch_0 temperatura",
+  "get_adc_value\t to get a value from the adc \neg: get_adc_value cucina",
   "query_channels\t to see all the switches names and values from a device\neg:query_channels microonde",
+  "install_ssh if you never started an ssh server on your pc",
+  "start_ssh to start an ssh server so you will be able to control the device from yor smartphone",
+  "stop_ssh to interrupt the comunication with your smartphone",
   "help\t\t\t to see this easy tutorial",
-  "exit\t\t\t to exit from the shell"};
+  "quit\t\t\t to exit from the shell"};
 char *builtin_str[] = {
   "set_name",
   "set_pwm_name",
@@ -43,7 +49,10 @@ char *builtin_str[] = {
   "get_adc_value",
   "query_channels",
   "help",
-  "exit"
+  "install_ssh",
+  "start_ssh",
+  "stop_ssh",
+  "quit"
 };
 
 int (*builtin_func[]) (char **) = {
@@ -54,7 +63,10 @@ int (*builtin_func[]) (char **) = {
   &shell_get_adc_value,
   &shell_query_channels,
   &shell_help,
-  &shell_exit
+  &install_ssh,
+  &start_ssh,
+  &stop_ssh,
+  &shell_quit
 };
 
 int shell_num_builtins() {
@@ -124,6 +136,38 @@ int shell_set_pwm_value(char **args){
     }
   return 1;
 }
+///server
+int install_ssh(char **args){
+
+  if (args[1] != NULL) {
+    fprintf(stderr, "NO ARGUMENTS NEEDED\n");
+  }
+  else {
+    sshinst();
+  }
+  return 1;
+}
+int start_ssh(char **args){
+
+  if (args[1] != NULL) {
+    fprintf(stderr, "NO ARGUMENTS NEEDED\n");
+  }
+  else {
+    startserver();
+  }
+  return 1;
+}
+int stop_ssh(char **args){
+
+  if (args[1] != NULL) {
+    fprintf(stderr, "NO ARGUMENTS NEEDED\n");
+  }
+  else {
+    stopserver();
+  }
+  return 1;
+}
+///end server
 
 int shell_set_pwm_name(char **args){
 
@@ -176,8 +220,8 @@ int shell_set_pwm_name(char **args){
 ////ADC FUNCTIONS
 int shell_get_adc_value(char **args){
 	int ret;
-  if (args[1] == NULL) {
-    fprintf(stderr, "shell: expected argument to \"get_adc_value\"  \n");
+  if (args[1] == NULL || args[2]!= NULL) {
+    fprintf(stderr, "shell: expected argument to \"get_adc_value\" CONTROLLER_NAME \n");
   }
 
   else{
@@ -190,12 +234,18 @@ int shell_get_adc_value(char **args){
     //codice funzione
 	  buffer[0] = '0';
 	  buffer[1] = '5';
-
-		ret = write(tty_fd, buffer, 3);
+	  
+	  //inserimento nome nel buffer
+	  int i = 0;
+	  while(args[1][i] != NULL){
+		  buffer[2+i] = args[1][i];
+		  i++;
+		}
+		//invio dati
+		ret = write(tty_fd, buffer, i+3);
 		if(ret < 0) printf("Errore nella write buffer\n");
 
-
-    readFromArduino();
+		readFromArduino();
     }
   return 1;
 }
@@ -304,7 +354,7 @@ int shell_help(char **args)
 }
 
 
-int shell_exit(char **args)
+int shell_quit(char **args)
 {
   return 0;
 }

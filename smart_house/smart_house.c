@@ -10,6 +10,7 @@
 uint8_t buf[MAX_BUF];
 char testo[256];
 char name[MAX_BUF];
+struct UART* uart;
 
 void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 	char curr_arduino[16], curr_channel[16];
@@ -23,7 +24,7 @@ void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 				//01Nname*channel_name
 				num_channel = (testo[2] - '0');
 				if(num_channel>7 || num_channel<0){
-					UART_putString((uint8_t*)"Channel not valid\n\r");
+					UART_putString(uart,(uint8_t*)"Channel not valid\n\r");
 					return 0;
 				}
 
@@ -59,7 +60,7 @@ void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 
 
 				if(flagarduino < 1){
-					UART_putString((uint8_t*)"Tha's not my name\n\r");
+					UART_putString(uart,(uint8_t*)"Tha's not my name\n\r");
 				}
 				else{
 					//controllo se il nome di un canale è uguale al nome selezionato
@@ -87,11 +88,11 @@ void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 					}
 
 					if(flagchannel == 2){
-						UART_putString((uint8_t*)"You shall NONE pass!(NONE = invalid name)\n\r");
+						UART_putString(uart,(uint8_t*)"You shall NONE pass!(NONE = invalid name)\n\r");
 					}
 
 					else if(flagchannel == 1){
-						UART_putString((uint8_t*)"Channel name already exist\n\r");
+						UART_putString(uart,(uint8_t*)"Channel name already exist\n\r");
 					}
 
 					else{
@@ -106,12 +107,12 @@ void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 							on_off_value(num_channel, 0);
 						}
 
-						UART_putString((uint8_t*)curr_arduino);
-						UART_putString((uint8_t*)" -> switch_");
-						UART_putChar((uint8_t) num_channel + '0');
-						UART_putString((uint8_t*)" new name is: ");
-						UART_putString((uint8_t*)channel_name[num_channel]);
-						UART_putString((uint8_t*)"\n\r");
+						UART_putString(uart,(uint8_t*)curr_arduino);
+						UART_putString(uart,(uint8_t*)" -> switch_");
+						UART_putChar(uart,(uint8_t) num_channel + '0');
+						UART_putString(uart,(uint8_t*)" new name is: ");
+						UART_putString(uart,(uint8_t*)channel_name[num_channel]);
+						UART_putString(uart,(uint8_t*)"\n\r");
 					}
 				}
 }
@@ -171,7 +172,7 @@ int main(void){
 
 	init_pwm();
 	init_adc();
-	UART_init();
+	uart=UART_init(NULL, 19600);
 
 	//allocazione variabile per nomi switch
 	char** pwm_channel_name = (char**) malloc(sizeof(char*) * 9);
@@ -222,7 +223,7 @@ int main(void){
 			testo[i] = NULL;
 		}
 		_delay_ms(2000);
-		UART_getString(buf);
+		UART_getString(buf, uart);
 
 		for (int i=0;i<MAX_BUF;i++){
 			testo[i]=carattere(buf[i]);
@@ -239,9 +240,9 @@ int main(void){
 					if(testo[i+2] == '\0') break;
 					name[i]=testo[i+2];
 				}
-				UART_putString((uint8_t*)"My new name is: ");
-				UART_putString((uint8_t*)name);
-				UART_putString((uint8_t*)"\n\r");
+				UART_putString(uart,(uint8_t*)"My new name is: ");
+				UART_putString(uart,(uint8_t*)name);
+				UART_putString(uart,(uint8_t*)"\n\r");
 			}
 			if(testo[1] == '1'){//01 set_pwm_channel_name
 				set_channel_name(pwm_channel_name, pwm_channel_value, 1);
@@ -298,7 +299,7 @@ int main(void){
 				char cnum_channel = '0';
 				cnum_channel += num_channel;
 
-				if(flag < 1) UART_putString((uint8_t*)"Channel name doesn't exist\n\r");
+				if(flag < 1) UART_putString(uart,(uint8_t*)"Channel name doesn't exist\n\r");
 
 				else{
 					value = (testo[2+j]-'0')*100 + (testo[2+j+1]-'0')*10 + (testo[2+j+2]-'0');
@@ -313,20 +314,20 @@ int main(void){
 
 
 					if(num_channel != 8){
-						UART_putString((uint8_t*)"switch_");
-						UART_putChar((uint8_t) cnum_channel);
-						UART_putString((uint8_t*)" value: ");
-						UART_putChar((uint8_t) testo[2+j]);
-						UART_putChar((uint8_t) testo[2+j+1]);
-						UART_putChar((uint8_t) testo[2+j+2]);
-						UART_putString((uint8_t*)"\n\r");
+						UART_putString(uart,(uint8_t*)"switch_");
+						UART_putChar(uart,(uint8_t) cnum_channel);
+						UART_putString(uart,(uint8_t*)" value: ");
+						UART_putChar(uart,(uint8_t) testo[2+j]);
+						UART_putChar(uart,(uint8_t) testo[2+j+1]);
+						UART_putChar(uart,(uint8_t) testo[2+j+2]);
+						UART_putString(uart,(uint8_t*)"\n\r");
 					}
 					if(num_channel == 8){
-						UART_putString((uint8_t*)"ALL channels are now setted to: ");
-						UART_putChar((uint8_t) testo[2+j]);
-						UART_putChar((uint8_t) testo[2+j+1]);
-						UART_putChar((uint8_t) testo[2+j+2]);
-						UART_putString((uint8_t*)"\n\r");
+						UART_putString(uart,(uint8_t*)"ALL channels are now setted to: ");
+						UART_putChar(uart,(uint8_t) testo[2+j]);
+						UART_putChar(uart,(uint8_t) testo[2+j+1]);
+						UART_putChar(uart,(uint8_t) testo[2+j+2]);
+						UART_putString(uart,(uint8_t*)"\n\r");
 					}
 				}
 			}
@@ -354,59 +355,86 @@ int main(void){
 				}
 
 				if(flagarduino < 1){
-					UART_putString((uint8_t*)"Tha's not my name\n\r");
+					UART_putString(uart,(uint8_t*)"Tha's not my name\n\r");
 				}
 				else{
-					UART_putString((uint8_t*)"Device name: ");
-					UART_putString((uint8_t*)name);
+					UART_putString(uart,(uint8_t*)"Device name: ");
+					UART_putString(uart,(uint8_t*)name);
 					for(int i = 0; i<8; i++){
-						UART_putString((uint8_t*)"\nPWMSwitch_");
-						UART_putChar((uint8_t) (i + '0'));
-						UART_putString((uint8_t*)" Name: ");
-						UART_putString((uint8_t*) pwm_channel_name[i]);
-						UART_putString((uint8_t*)"\tvalue: ");
+						UART_putString(uart,(uint8_t*)"\nPWM_");
+						UART_putChar(uart,(uint8_t) (i + '0'));
+						UART_putString(uart,(uint8_t*)"\t");
+						UART_putString(uart,(uint8_t*) pwm_channel_name[i]);
+						UART_putString(uart,(uint8_t*)"\t");
 						int centinaia = pwm_channel_value[i]/100;
-						UART_putChar((uint8_t*)(centinaia+'0'));
+						UART_putChar(uart,(uint8_t*)(centinaia+'0'));
 						int decina = (pwm_channel_value[i] - (centinaia*100))/10;
-						UART_putChar((uint8_t*)(decina+'0'));
+						UART_putChar(uart,(uint8_t*)(decina+'0'));
 						int unita = (pwm_channel_value[i] - (centinaia*100) -(decina*10));
-						UART_putChar((uint8_t*)(unita+'0'));
+						UART_putChar(uart,(uint8_t*)(unita+'0'));
 					}
-					UART_putString((uint8_t*)"\n\r");
+					UART_putString(uart,(uint8_t*)"\n\r");
 				}
 			}
 			if(testo[1] == '4')
 					set_channel_name(adc_channel_name, pwm_channel_value, 0);
 			if(testo[1] == '5'){
-				UART_putString((uint8_t*)"Device name: ");
-				UART_putString((uint8_t*)name);
-				for(int ch = 0; ch<8; ch++){
-					UART_putString((uint8_t*) "\nADCSwitch_ ");
-					UART_putChar((uint8_t*)(ch+'0'));
-					UART_putString((uint8_t*)" Name: ");
-					UART_putString((uint8_t*) adc_channel_name[ch]);
-					UART_putString((uint8_t*)"\tvalue: ");
-					int valoreADC = read_analog(ch);
-					int centinaia = valoreADC/100;
-					UART_putChar((uint8_t*)(centinaia+'0'));
-					int decina = (valoreADC - (centinaia*100))/10;
-					UART_putChar((uint8_t*)(decina+'0'));
-					int unita = (valoreADC - (centinaia*100) -(decina*10));
-					UART_putChar((uint8_t*)(unita+'0'));
+				char curr_arduino[16];
+				int len_arduino = 0;
+
+				for(int i=0; i<16; i++){
+					curr_arduino[i] = NULL;
 				}
-				UART_putString((uint8_t*)"\n\r");
+
+				while(testo[len_arduino+2] != NULL){
+					curr_arduino[len_arduino] =  testo[len_arduino+2];
+					len_arduino++;
+				}
+
+				int i =0;
+				int flagarduino=1;
+				while(curr_arduino[i] != NULL || name[i] != NULL){
+					if(curr_arduino[i] != name[i]){
+						flagarduino = 0;
+						break;
+					}
+					i++;
+				}
+
+				if(flagarduino < 1){
+					UART_putString(uart,(uint8_t*)"Tha's not my name\n\r");
+				}
+				else{
+					UART_putString(uart,(uint8_t*)"Device name: ");
+					UART_putString(uart,(uint8_t*)name);
+					for(int ch = 0; ch<8; ch++){
+						UART_putString(uart,(uint8_t*) "\nADC_");
+						UART_putChar(uart,(uint8_t*)(ch+'0'));
+						UART_putString(uart,(uint8_t*)"\t");
+						UART_putString(uart,(uint8_t*) adc_channel_name[ch]);
+						UART_putString(uart,(uint8_t*)"\t");
+						int valoreADC = read_analog(ch);
+						int centinaia = valoreADC/100;
+						UART_putChar(uart,(uint8_t*)(centinaia+'0'));
+						int decina = (valoreADC - (centinaia*100))/10;
+						UART_putChar(uart,(uint8_t*)(decina+'0'));
+						int unita = (valoreADC - (centinaia*100) -(decina*10));
+						UART_putChar(uart,(uint8_t*)(unita+'0'));
+					}
+					UART_putString(uart,(uint8_t*)"\n\r");
+				}
 			}
 			if(testo[1] == '6')
-				UART_putString((uint8_t*)"Function not yet implemented\n\r");
+				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
 			if(testo[1] == '7')
-				UART_putString((uint8_t*)"Function not yet implemented\n\r");
+				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
 			if(testo[1] == '8')
-				UART_putString((uint8_t*)"Function not yet implemented\n\r");
+				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
 			if(testo[1] == '9')
-				UART_putString((uint8_t*)"Function not yet implemented\n\r");
+				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
         }
         else{
-			UART_putString((uint8_t*)"Function not yet implemented\n\r");
+			UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
         }
         _delay_ms(500); // from delay.h, wait 0.5 sec
 	}
