@@ -11,9 +11,9 @@
 int shell_set_name(char **args);
 int shell_set_pwm_value(char **args);
 int shell_set_pwm_name(char **args);
-int shell_get_adc_value(char **args);
+int shell_get_adc(char **args);
 int shell_set_adc_name(char **args);
-int shell_query_channels(char **args);
+int shell_get_pwm(char **args);
 int shell_help(char **args);
 int install_ssh(char **args);
 int start_ssh(char **args);
@@ -31,25 +31,25 @@ struct termios tio;
 	int tty_fd;
 
 	unsigned char c='D';
-char *help_com[]={  "set_name\t\t to set a name for your device \neg: set_name cucina",
-  "set_pwm_name\t to set a name for a PWM from 0 to 7 \neg: set_pwm_name cucina switch_3 microonde",
-  "set_pwm_value\t to set a value for a switch from 0 to 255\neg: set_pwm_value microonde 125\nYou can use ALL instead of NAME_SWITCH \neg: set_pwm_value ALL 255",
-  "set_adc_name\t to set a name for an ADC from 0 to 7\n eg: set_adc_name cucina switch_0 temperatura",
-  "get_adc_value\t to get a value from the adc \neg: get_adc_value cucina",
-  "query_channels\t to see all the switches names and values from a device\neg:query_channels microonde",
-  "install_ssh if you never started an ssh server on your pc",
-  "start_ssh to start an ssh server so you will be able to control the device from yor smartphone",
-  "stop_ssh to interrupt the comunication with your smartphone",
-  "help\t\t\t to see this easy tutorial",
-  "reset to clean the arduino memory",
-  "quit\t\t\t to exit from the shell"};
+char *help_com[]={  "set_name\t\t\t\t\t will set a name to your device \neg: set_name irvin",
+  "set_pwm_name\t\t\t\t\t will set a name to a PWM from 0 to 7 \neg: set_pwm_name irvin switch_3 lampada",
+  "set_pwm_value\t\t\t\t\t will set a value to a switch from 0 to 255\neg: set_pwm_value lampada 125\t\t\t You can use ALL instead of NAME_SWITCH if you have the force\neg: set_pwm_value ALL 255",
+  "set_adc_name\t\t\t\t\t will set a name to an ADC from 0 to 7\neg: set_adc_name irvin switch_0 temperatura",
+  "get_adc\t\t\t\t\t\t will show you a list of couples ADC-VALUE \neg: get_adc irvin",
+  "get_pwm\t\t\t\t\t\t will show you a list of couples PWM-VALUE\neg:get_pwm irvin",
+  "install_ssh\t\t\t\t\t will install openssh-server on your linux machine so  you will be able to access the shell remotly",
+  "start_ssh\t\t\t\t\t will start an ssh server on your inet address on port 22",
+  "stop_ssh\t\t\t\t\t will interrupt the comunication with your remote controller",
+  "help\t\t\t\t\t\t to see this mindblowing tutorial",
+  "reset\t\t\t\t\t\t if you want to start as nothing ever happened (on your arduino device)",
+  "quit\t\t\t\t\t\t will make us sad but thats life.."};
 char *builtin_str[] = {
   "set_name",
   "set_pwm_name",
   "set_pwm_value",
   "set_adc_name",
-  "get_adc_value",
-  "query_channels",
+  "get_adc",
+  "get_pwm",
   "help",
   "install_ssh",
   "start_ssh",
@@ -63,8 +63,8 @@ int (*builtin_func[]) (char **) = {
   &shell_set_pwm_name,
   &shell_set_pwm_value,
   &shell_set_adc_name,
-  &shell_get_adc_value,
-  &shell_query_channels,
+  &shell_get_adc,
+  &shell_get_pwm,
   &shell_help,
   &install_ssh,
   &start_ssh,
@@ -76,10 +76,10 @@ int (*builtin_func[]) (char **) = {
 int shell_num_builtins() {
   return sizeof(builtin_str) / sizeof(char *);
 }
-int shell_query_channels(char **args){
+int shell_get_pwm(char **args){
 	int ret;
   if (args[1] == NULL) {
-    fprintf(stderr, "shell: expected argument to \"query_channels\" CONTRLLER_NAME\n");
+    fprintf(stderr, "shell: expected argument to \"get_pwm\" CONTRLLER_NAME\n");
   }
   else{
 	  for(int i = 0; i < 32; i++){
@@ -235,15 +235,15 @@ int reset(char **args){
 
     ret = write(tty_fd, buffer, 3);
 		if(ret < 0) printf("Errore nella write code\n");
-    		readFromArduino();
+    readFromArduino();
 
   return 1;
 }
 ////ADC FUNCTIONS
-int shell_get_adc_value(char **args){
+int shell_get_adc(char **args){
 	int ret;
   if (args[1] == NULL || args[2]!= NULL) {
-    fprintf(stderr, "shell: expected argument to \"get_adc_value\" CONTROLLER_NAME \n");
+    fprintf(stderr, "shell: expected argument to \"get_adc\" CONTROLLER_NAME \n");
   }
 
   else{
@@ -371,13 +371,15 @@ int shell_help(char **args)
     printf("%s\n", help_com[i]);
   }
 
-  printf("Use the man command for information on other programs.\n");
   return 1;
 }
 
 
 int shell_quit(char **args)
 {
+  tcsetattr(tty_fd, TCSANOW, &old_stdio);
+  close(tty_fd);
+
   return 0;
 }
 

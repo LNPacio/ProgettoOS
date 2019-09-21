@@ -184,7 +184,7 @@ int main(void){
 	}
 
 	int pwm_channel_value[9];
-
+L:
 	//riempimento nomi e valori
 	for(int i =0; i<9; i++){
 		pwm_channel_value[i] = 0;
@@ -217,6 +217,15 @@ int main(void){
 	}
 	EEPROM_read(name,0,16);
 	char val[3];
+	char ze[3]={'0','0','0'};
+	char non[16];
+	for (int i=0;i<16;i++){
+		non[i]=NULL;
+	}
+	non[0]='N';
+	non[1]='O';
+	non[2]='N';
+	non[3]='E';
 
 	for (int j=0;j<8;j++){
 		itoa(pwm_channel_value[j],val,10);
@@ -224,9 +233,9 @@ int main(void){
 		EEPROM_read(adc_channel_name[j],16*9+16*j,16);
 		EEPROM_read(val,16*17+j*3,3);
 		pwm_channel_value[j]=atoi(val);
-		if(pwm_channel_name[j]==NULL)	EEPROM_write(16+16*j,"NONE",16);
-		if(adc_channel_name[j]==NULL) EEPROM_write(16*9+16*j,"NONE",16);
-		if(pwm_channel_name[j]==NULL) EEPROM_write(16*17+j*3,"000",3);
+		if(pwm_channel_name[j]==NULL)	EEPROM_write(16+16*j,non,16);
+		if(adc_channel_name[j]==NULL) EEPROM_write(16*9+16*j,non,16);
+		if(pwm_channel_name[j]==NULL) EEPROM_write(16*17+j*3,ze,3);
 
 		EEPROM_read(val,16*17+j*3,3);
 		EEPROM_read(pwm_channel_name[j],16+16*j,16);
@@ -259,6 +268,7 @@ for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
 					if(testo[i+2] == '\0') break;
 					name[i]=testo[i+2];
 				}
+				EEPROM_write(0,name,16);
 				UART_putString(uart,(uint8_t*)"My new name is: ");
 				UART_putString(uart,(uint8_t*)name);
 				UART_putString(uart,(uint8_t*)"\n\r");
@@ -444,9 +454,21 @@ for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
 				}
 			}
 			if(testo[1] == '6'){
-			UART_putString(uart,(uint8_t*)"Device nfasaughusfs\r");
-				EEPROM_write(0,'\0',2000);
-				goto L;
+
+			for (int i=0;i<300;i++){
+				EEPROM_write(i,0,1);}
+
+			for (int i=0;i<8;i++){
+				EEPROM_write(16+16*i,non,16);
+				EEPROM_write(16*9+16*i,non,16);
+				EEPROM_write(16*17+i*3,ze,3);
+				EEPROM_read(val,16*17+i*3,3);
+				EEPROM_read(name,0,16);
+				EEPROM_read(pwm_channel_name[i],16+16*i,16);
+				EEPROM_read(adc_channel_name[i],16*9+16*i,16);
+				pwm_channel_value[i]=atoi(val);
+			}
+				UART_putString(uart,(uint8_t*)"Reset done\n\r");
 				}
 			if(testo[1] == '7')
 				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
@@ -458,13 +480,13 @@ for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
         else{
 			UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
         }
-			/*	for (int j=0;j<8;j++){
+				for (int j=0;j<8;j++){
 					itoa(pwm_channel_value[j],val,10);
 					EEPROM_write(16+16*j,pwm_channel_name[j],16);
 					EEPROM_write(16*9+16*j,adc_channel_name[j],16);
 					EEPROM_write(16*17+j*3,val,3);
 				}
-*/
-  L:      _delay_ms(500); // from delay.h, wait 0.5 sec
+
+     _delay_ms(500); // from delay.h, wait 0.5 sec
 	}
 }
