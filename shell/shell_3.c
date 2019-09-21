@@ -380,7 +380,7 @@ int shell_help(char **args)
 
 int shell_quit(char **args)
 {
-  tcsetattr(tty_fd, TCSANOW, &old_stdio);
+ 
   close(tty_fd);
 
   return 0;
@@ -529,6 +529,7 @@ void shell_loop(void)
 void printGandalf(){
 printf("                           ,---.\n                          /    |\n                         /     |\n You shall NONE pass!   /      |\n                       /       |\n          \\      ___,'         |\n                <  -'          :\n                 `-.__..--'``-,_\\_\n                    |o/ <o>` :,.)_`>\n                    :/ `     ||/)\n                    (_.).__,-` |\\ \n                    /( `.``   `| :\n                    \\\'`-.)  `  ; ;\n                    | `       /-<\n                    |     `  /   `.\n    ,-_-..____     /|  `    :__..-'\\ \n   /,'-.__\\\\  ``-./ :`      ;       \\ \n   `\\ `\\  `\\\\  \\ :  (   `  /  ,   `. \\ \n     \\` \\   \\\\   |  | `   :  :     .\\ \\ \n      \\ `\\_  ))  :  ;     |  |      ): :\n     (`-.-\'\ ||  |\\ \\   ` ;  ;       | |\n      \\-_   `;;._   ( `  /  /_       | |\n       `-.-.// ,'`-._\\__/_,'         ; |\n          \\:: :     /     `     ,   /  |\n           || |    (        ,' /   /   |\n           ||                ,'   /    |\n");
 }
+
 void readFromArduino(){
 	int gand=0;
 	while(read(tty_fd,&c,1)<1);
@@ -546,16 +547,6 @@ void readFromArduino(){
 		if(gand){
 		printGandalf();}
 		printf("\n");
-
-
-	/*if(read(tty_fd,&c,1)>0){
-		printf("\nARDUINO: ");
-		printf("%c", c);
-		while(read(tty_fd,&c,1)>0){
-			printf("%c", c);
-		}
-		printf("\n");
-	}*/
 }
 
 int main(int argc, char **argv){
@@ -567,8 +558,7 @@ int main(int argc, char **argv){
     printf("\t |_____/|_| |_| |_|\\__,_|_|   \\__| |_|  |_|\\___/ \\__,_|___/\\___|\n");
     printf("\n");
     printf("\n");
-    tcgetattr(STDOUT_FILENO,&old_stdio);
-
+    
     //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
 
         memset(&tio,0,sizeof(tio));
@@ -578,21 +568,26 @@ int main(int argc, char **argv){
         tio.c_lflag=0;
         tio.c_cc[VMIN]=1;
         tio.c_cc[VTIME]=5;
-
-        tty_fd=open("/dev/ttyACM0", O_RDWR | O_NONBLOCK);
+        
+        
+		
+        tty_fd=open("/dev/ttyACM0", O_RDWR |O_NOCTTY);
+        if(tty_fd < 0) printf("Hai sbracchiato vero? Attendi...\n");
+        while(tty_fd < 0 ){
+			sleep(1);
+			tty_fd=open("/dev/ttyACM0", O_RDWR );
+			
+		}
+        printf("\n");
         cfsetospeed(&tio,B19200);            // 19200 baud
         cfsetispeed(&tio,B19200);            // 19200 baud
 
         tcsetattr(tty_fd,TCSANOW,&tio);
-
-
-
-
-
-  shell_loop();
-
-  close(tty_fd);
-  tcsetattr(STDOUT_FILENO,TCSANOW,&old_stdio);
-
-  return EXIT_SUCCESS;
+        
+        
+		
+		shell_loop();
+		
+		
+		return EXIT_SUCCESS;
 }
