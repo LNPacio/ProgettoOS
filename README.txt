@@ -1,3 +1,13 @@
+
+ _____                      _       _   _                      
+/  ___|                    | |     | | | |                     
+\ `--. _ __ ___   __ _ _ __| |_    | |_| | ___  _   _ ___  ___ 
+ `--. \ '_ ` _ \ / _` | '__| __|   |  _  |/ _ \| | | / __|/ _ \
+/\__/ / | | | | | (_| | |  | |_    | | | | (_) | |_| \__ \  __/
+\____/|_| |_| |_|\__,_|_|   \__|   \_| |_/\___/ \__,_|___/\___|
+                                                               
+                                                               
+
 Per avviare il programma è necessario (in ordine):
 1-caricare su arduinoMEGA2560 il contenuto della cartella "smart_house" (make smart_house.hex da terminale);
 2-compilare il contenuto della cartella "shell" (gcc -o NOME shell_3.c) e poi eseguire il file.
@@ -54,15 +64,18 @@ In modo da chiudere correttamente la comunicazione tra i due dispositivi
 Un aiuto nella shell con tutti i comandi built-in.
 
 I seguenti switch con i propri PIN sull’arduino :
+____________________________________________________________
+SWITCH:      |          PWM:         |         ADC:         |
+             |=======================|======================|
+switch_0     |         PIN-12        |        PIN-00        |
+switch_1     |         PIN-11        |        PIN-00        |
+switch_2     |         PIN-10        |        PIN-00        |
+switch_3     |         PIN-07        |        PIN-00        |
+switch_4     |         PIN-06        |        PIN-00        |  
+switch_5     |         PIN-05        |        PIN-00        |
+switch_6     |         PIN-04        |        PIN-00        |
+switch_7     |         PIN-02        |        PIN-00        |
+_____________|_______________________|______________________|
 
-                      PWM:          ADC:
 
-switch_0              PIN-12
-switch_1              PIN-11
-switch_2              PIN-10
-switch_3              PIN-07
-switch_4              PIN-06
-switch_5              PIN-05
-switch_6              PIN-04
-switch_7              PIN-02
-
+                                                                                                      Bella.
