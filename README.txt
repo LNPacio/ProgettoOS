@@ -90,7 +90,7 @@ In modo da chiudere correttamente la comunicazione tra i due dispositivi
 Un aiuto nella shell con tutti i comandi built-in.
 
 
-I seguenti switch con i propri PIN sull’arduino :
+I seguenti switch con i corrispettivi PIN sull’arduino :
 
                         _____________________________________________________________________
                        |        SWITCH:        |         PWM:         |         ADC:         |
