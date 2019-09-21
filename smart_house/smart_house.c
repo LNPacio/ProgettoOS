@@ -89,7 +89,7 @@ void set_channel_name(char** channel_name, int* channel_value, int pwmOrAdc){
 					}
 
 					if(flagchannel == 2){
-						UART_putString(uart,(uint8_t*)"You shall NONE pass!(NONE = invalid name)\n\r");
+						UART_putString(uart,(uint8_t*)"You shall NONE pass!\nNONE is a special name so you are not allowed to use it, maybe you are not special enough, think to something else\n\r");
 					}
 
 					else if(flagchannel == 1){
