@@ -15,8 +15,11 @@ ________________________________________________________________________________
                              | || | | \__ \ || (_| | | | (_| |/ /| | (_) | | | |  __/  _ 
                             |___|_| |_|___/\__\__,_|_|_|\__,_/___|_|\___/|_| |_|\___| (_)
 
-1-caricare su arduinoMEGA2560 il contenuto della cartella "smart_house" (make smart_house.hex da terminale);
-2-compilare il contenuto della cartella "shell" (gcc -o NOME shell_3.c) e poi eseguire il file.
+1) Caricare su arduinoMEGA2560 il contenuto della cartella "smart_house" (make smart_house.hex da terminale);
+
+2) Compilare il contenuto della cartella "shell" (gcc -o NOME shell_3.c).
+
+3) Eseguire la schell appena compilata.
 
 _____________________________________________________________________________________________________________________________
 
