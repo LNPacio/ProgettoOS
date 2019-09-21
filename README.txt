@@ -95,14 +95,14 @@ I seguenti switch con i corrispettivi PIN sull’arduino :
                         _____________________________________________________________________
                        |        SWITCH:        |         PWM:         |         ADC:         |
                        |-----------------------|----------------------|----------------------|
-                       |       switch_0        |         PIN-12       |        PIN-00        |
-                       |       switch_1        |         PIN-11       |        PIN-00        |
-                       |       switch_2        |         PIN-10       |        PIN-00        |
-                       |       switch_3        |         PIN-07       |        PIN-00        |
-                       |       switch_4        |         PIN-06       |        PIN-00        |  
-                       |       switch_5        |         PIN-05       |        PIN-00        |
-                       |       switch_6        |         PIN-04       |        PIN-00        |
-                       |       switch_7        |         PIN-02       |        PIN-00        |
+                       |       switch_0        |         PIN-12       |        PIN-A1        |
+                       |       switch_1        |         PIN-11       |        PIN-A2        |
+                       |       switch_2        |         PIN-10       |        PIN-A3        |
+                       |       switch_3        |         PIN-07       |        PIN-A4        |
+                       |       switch_4        |         PIN-06       |        PIN-A5        |  
+                       |       switch_5        |         PIN-05       |        PIN-A6        |
+                       |       switch_6        |         PIN-04       |        PIN-A7        |
+                       |       switch_7        |         PIN-02       |        PIN-A8        |
                        |_______________________|______________________|______________________|
 
 
