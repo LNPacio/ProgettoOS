@@ -454,10 +454,12 @@ for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
 				}
 			}
 			if(testo[1] == '6'){
-
-			for (int i=0;i<300;i++){
-				EEPROM_write(i,0,1);}
-
+			UART_putString(uart,(uint8_t*)"Resetting.");
+			int zero = 0;
+			//reset name
+			for (int i=0;i<16;i++){
+				EEPROM_write(i,zero,1);}
+			UART_putString(uart,(uint8_t*)".");
 			for (int i=0;i<8;i++){
 				EEPROM_write(16+16*i,non,16);
 				EEPROM_write(16*9+16*i,non,16);
@@ -466,10 +468,15 @@ for (int q=0;q<8;q++)		{on_off_value(q,pwm_channel_value[q]);}
 				EEPROM_read(name,0,16);
 				EEPROM_read(pwm_channel_name[i],16+16*i,16);
 				EEPROM_read(adc_channel_name[i],16*9+16*i,16);
-				pwm_channel_value[i]=atoi(val);
+				UART_putString(uart,(uint8_t*)".");
 			}
-				UART_putString(uart,(uint8_t*)"Reset done\n\r");
-				}
+			for (int i=0;i<8;i++){
+				pwm_channel_value[i] = 0;
+				on_off_value(i,0);
+				
+			}
+			UART_putString(uart,(uint8_t*)"\nReset done\n\r");
+			}
 			if(testo[1] == '7')
 				UART_putString(uart,(uint8_t*)"Function not yet implemented\n\r");
 			if(testo[1] == '8')

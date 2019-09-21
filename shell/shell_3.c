@@ -230,11 +230,14 @@ int shell_set_pwm_name(char **args){
 int reset(char **args){
     int ret;
     //codice funzione
+    for(int i = 0; i < 32; i++){
+		buffer[i] = NULL;
+	  }
 	  buffer[0] = '0';
 	  buffer[1] = '6';
 
     ret = write(tty_fd, buffer, 3);
-		if(ret < 0) printf("Errore nella write code\n");
+	if(ret < 0) printf("Errore nella write code\n");
     readFromArduino();
 
   return 1;
