@@ -19,7 +19,7 @@ ________________________________________________________________________________
 
 2) Compilare il contenuto della cartella "shell" (gcc -o NOME shell_3.c).
 
-3) Eseguire la schell appena compilata.
+3) Eseguire la shell appena compilata.
 
 _____________________________________________________________________________________________________________________________
 
