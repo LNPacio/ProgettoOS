@@ -25,7 +25,7 @@ void route()
      ROUTE_GET("/form")
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("<b>Bella Raga </b>\n" "<button type=\"button\" method=\"ROUTE_POST(\"/hello\")\">Click Me!</button> ");
+        printf("<form action=\"\" method=\"post\"><button name=\"foo\" value=\"/hello\">POST</button></form>");
     }
 
     ROUTE_POST("/")
@@ -35,7 +35,7 @@ void route()
         printf("Fetch the data using `payload` variable.");
     }
     
-    ROUTE_POST("/hello")
+    ROUTE_POST("/form")
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
         printf("Wow, seems that you POSTed %d bytes. \r\n", payload_size);
