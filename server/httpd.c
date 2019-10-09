@@ -64,6 +64,7 @@ void serve_forever(const char *PORT)
                 respond(slot);
                 exit(0);
             }
+            
         }
 
         while (clients[slot]!=-1) slot = (slot+1)%CONNMAX;
@@ -165,10 +166,13 @@ void respond(int n)
             t = v + 1 + strlen(v);
             if (t[1] == '\r' && t[2] == '\n') break;
         }
-        t++; // now the *t shall be the beginning of user payload
+        t = strtok(NULL, "\r\n"); // now the *t shall be the beginning of user payload
         t2 = request_header("Content-Length"); // and the related header if there is  
         payload = t;
         payload_size = t2 ? atol(t2) : (rcvd-(t-buf));
+        
+        fprintf(stderr,"%s\n",payload);
+        //fprintf(stderr,"%s \n", payload);
 
         // bind clientfd to stdout, making it easier to write
         clientfd = clients[n];
@@ -177,6 +181,7 @@ void respond(int n)
 
         // call router
         route();
+       
 
         // tidy up
         fflush(stdout);
