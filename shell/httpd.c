@@ -200,10 +200,12 @@ void respond(int n)
         payload = t;
         payload_size = t2 ? atol(t2) : (rcvd-(t-buf));
         
-        payload[payload_size]= '\n';
-        sprintf(bufFIFO,payload,quit_command);
-        writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
-        //fprintf(stderr,"%s \n", payload);
+        if(method[0] == 'P'){
+			payload[payload_size]= '\n';
+			sprintf(bufFIFO,payload,quit_command);
+			writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
+			
+		}
 
         // bind clientfd to stdout, making it easier to write
         clientfd = clients[n];

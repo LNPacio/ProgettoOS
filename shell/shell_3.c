@@ -10,6 +10,7 @@
 #include "server.h"
 #include "common.h"
 
+
 int shell_set_name(char **args);
 int shell_set_pwm_value(char **args);
 int shell_set_pwm_name(char **args);
@@ -23,6 +24,9 @@ int stop_ssh(char **args);
 int reset(char **args);
 int shell_quit(char **args);
 void readFromArduino();
+int shell_read_from_server(char **args);
+char **shell_split_line(char *line);
+int shell_execute(char **args);
 
 
 int readOneByOne(int fd, char* bufFIFO, char separator);
@@ -54,7 +58,8 @@ char *help_com[]={  "set_name\t\t\t\t\t will set a name to your device \neg: set
   "stop_ssh\t\t\t\t\t will interrupt the comunication with your remote controller",
   "help\t\t\t\t\t\t to see this mindblowing tutorial",
   "reset\t\t\t\t\t\t if you want to start as nothing ever happened (on your arduino device)",
-  "quit\t\t\t\t\t\t will make us sad but thats life.."};
+  "quit\t\t\t\t\t\t will make us sad but thats life..",
+  "read_from_server"};
 char *builtin_str[] = {
   "set_name",
   "set_pwm_name",
@@ -67,7 +72,8 @@ char *builtin_str[] = {
   "start_ssh",
   "stop_ssh",
   "reset",
-  "quit"
+  "quit",
+  "read_from_server"
 };
 
 int (*builtin_func[]) (char **) = {
@@ -82,12 +88,41 @@ int (*builtin_func[]) (char **) = {
   &start_ssh,
   &stop_ssh,
   &reset,
-  &shell_quit
+  &shell_quit,
+  &shell_read_from_server
 };
 
 int shell_num_builtins() {
   return sizeof(builtin_str) / sizeof(char *);
 }
+
+int shell_read_from_server(char **args){
+	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
+
+    bufFIFO[bytes_read] = '\0';
+    printf("%s", bufFIFO);
+    
+    char line[256];
+   for(int i = 5; i < bytes_read; i++){
+	   if(bufFIFO[i]=='&'){ 
+		   line[i-5] = '\0';
+		   break;
+	   }
+	   else if(bufFIFO[i]=='+')line[i-5] = ' ';
+	   else line[i-5] = bufFIFO[i];
+   }
+   printf("TUTTO %s\n", line);
+   
+   
+	
+    shell_execute(shell_split_line(line));
+   
+   
+    
+    return 1;
+}
+
+
 int shell_get_pwm(char **args){
 	int ret;
   if (args[1] == NULL) {
@@ -524,10 +559,6 @@ void shell_loop(void)
 
   do {
 	//sleep(1);
-	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
-
-    bufFIFO[bytes_read] = '\0';
-    printf("%s", bufFIFO);
 
     printf("smart_house >> ");
     line = shell_read_line();
