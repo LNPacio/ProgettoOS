@@ -6,7 +6,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <sys/stat.h>
 #include "server.h"
+#include "common.h"
 
 int shell_set_name(char **args);
 int shell_set_pwm_value(char **args);
@@ -21,6 +23,16 @@ int stop_ssh(char **args);
 int reset(char **args);
 int shell_quit(char **args);
 void readFromArduino();
+
+
+int readOneByOne(int fd, char* bufFIFO, char separator);
+void writeMsg(int fd, char* bufFIFO, int size);
+
+//fifo
+int echo_fifo, client_fifo;
+char bufFIFO[1024];
+//char* quit_command = QUIT_COMMAND;
+size_t quit_command_len;
 
 //dichiarazione variabili globali
 char device_name[16];
@@ -512,6 +524,10 @@ void shell_loop(void)
 
   do {
 	//sleep(1);
+	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
+
+    bufFIFO[bytes_read] = '\0';
+    printf("%s", bufFIFO);
 
     printf("smart_house >> ");
     line = shell_read_line();
@@ -547,6 +563,22 @@ void readFromArduino(){
 		if(gand){
 		printGandalf();}
 		printf("\n");
+}
+
+static void cleanFIFOs(int echo_fifo, int client_fifo) {
+
+
+    // close the descriptors
+    int ret = close(echo_fifo);
+    if(ret) handle_error("Cannot close Echo FIFO");
+    ret = close(client_fifo);
+    if(ret) handle_error("Cannot close Client FIFO");
+
+    // destroy the two FIFOs
+    ret = unlink(ECHO_FIFO_NAME);
+    if(ret) handle_error("Cannot unlink Echo FIFO");
+    ret = unlink(CLNT_FIFO_NAME);
+    if(ret) handle_error("Cannot unlink Client FIFO");
 }
 
 int main(int argc, char **argv){
@@ -585,9 +617,46 @@ int main(int argc, char **argv){
         tcsetattr(tty_fd,TCSANOW,&tio);
         
         
+        int ret = unlink(ECHO_FIFO_NAME);
+		//if(ret) handle_error("Cannot unlink Echo FIFO");
+		ret = unlink(CLNT_FIFO_NAME);
+		//if(ret) handle_error("Cannot unlink Client FIFO");
+        
+        ret = mkfifo(ECHO_FIFO_NAME, 0666);
+		if(ret) handle_error("Cannot create Echo FIFO");
+		ret = mkfifo(CLNT_FIFO_NAME, 0666);
+		if(ret) handle_error("Cannot create Client FIFO");
+        
+        
+        pid_t papi= getpid();
+        
+        pid_t pid = fork();
+        
+        if(pid < 0){
+			printf("Errore nella fork\n");
+			EXIT_FAILURE;
+		}
 		
-		shell_loop();
-		
+		if(pid == 0) startArduinoServer(papi);
+        
+        else{
+			int ret;
+			//quit_command_len = strlen(quit_command);
+			echo_fifo = open(ECHO_FIFO_NAME, O_RDONLY);
+			if(echo_fifo == -1) handle_error("Cannot open Echo FIFO for reading");
+			//client_fifo = open(CLNT_FIFO_NAME, O_WRONLY);
+			//if(client_fifo == -1) handle_error("Cannot open Client FIFO for writing");
+			
+			
+			
+			
+			shell_loop();
+			
+			cleanFIFOs(echo_fifo, client_fifo);
+			
+			kill(pid, 1);
+			//wait();
 		
 		return EXIT_SUCCESS;
+		}
 }
