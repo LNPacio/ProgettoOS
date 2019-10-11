@@ -18,19 +18,43 @@ void route()
     ROUTE_GET("/")
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("<b>Hello! You are using %s </b>", request_header("User-Agent"));
-    }
-    
-    ROUTE_GET("/bella")
-    {
-        printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("<b>Bella Raga </b>\n" "<button type=\"button\" method=\"ROUTE_POST(\"/hello\")\">Click Me!</button> ");
+        printf("<html>");
+		printf("<br>");
+		printf("<br>");
+        printf("<form action=\"/resp\" method=\"post\">");
+        printf("<div><button name=\"\" value=\"\">Inizia</button><div>");
+        printf("</form></html>");
     }
     
      ROUTE_GET("/form")
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("<form action=\"\" method=\"post\">Nome<br><input type=\"text\" name=\"nome\"><br><button name=\"bottone\" value=\"helloMoto\">POST</button></form>");
+        printf("<form action=\"/resp\" method=\"post\">");
+        printf("<br> Seleziona Comando:");
+        printf("<select name=\"command\">");
+        printf("<option value=\"set_name\">Imposta il nome</option>");
+        printf("<option value=\"get_pwm\">Leggi valori PWM</option>");
+        printf("<option value=\"get_adc\">Leggi valori ADC</option>");
+        printf("<option value=\"set_pwm_name\">Imposta nomi PWM</option>");
+        printf("<option value=\"set_pwm_value\">Imposta valori PWM</option>");
+        printf("<option value=\"set_pwm_adc\">Imposta nomi ADC</option>");
+        printf("<option value=\"quit\">Chiudi</option>");
+        printf("</select><br>");
+        printf("<br>Nome<input type=\"text\" name=\"nome\"><br>");
+        printf("Seleziona Canale:<select name=\"switch\">");
+        printf("<option value=\"\">---</option>");
+        printf("<option value=\"switch_0\">0</option>");
+        printf("<option value=\"switch_1\">1</option>");
+        printf("<option value=\"switch_2\">2</option>");
+        printf("<option value=\"switch_3\">3</option>");
+        printf("<option value=\"switch_4\">4</option>");
+        printf("<option value=\"switch_5\">5</option>");
+        printf("<option value=\"switch_6\">6</option>");
+        printf("<option value=\"switch_7\">7</option>");
+        printf("</select><br>");
+        printf("<br>Valore o Nome<input type=\"text\" name=\"nome\"><br>");
+        printf("<button name=\"\" value=\"\">INVIO</button>");
+        printf("</form>");
     }
 
     ROUTE_POST("/")
@@ -40,11 +64,15 @@ void route()
         printf("Fetch the data using `payload` variable.");
     }
     
-    ROUTE_POST("/form")
+    ROUTE_POST("/resp")
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("Wow, seems that you POSTed %s bytes. \r\n", payload);
-        printf("Fetch the data using `payload` variable.");
+        printf("<html>");
+        printf("Wow, seems that you POSTed %s bytes.<br>", payload);
+        printf("Fetch the data using `payload` variable.<br>");
+        printf("<form action=\"/form\" method=\"get\">");
+        printf("<button name=\"\" value=\"\">Torna Indietro</button>");
+        printf("</form></html>");
     }
   
     ROUTE_END()

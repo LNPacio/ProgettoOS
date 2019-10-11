@@ -97,28 +97,50 @@ int shell_num_builtins() {
 }
 
 int shell_read_from_server(char **args){
+	while(1){
 	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
 
     bufFIFO[bytes_read] = '\0';
     printf("%s", bufFIFO);
     
     char line[256];
-   for(int i = 5; i < bytes_read; i++){
+    int contLine=0;
+   /*for(int i = 5; i < bytes_read; i++){
 	   if(bufFIFO[i]=='&'){ 
 		   line[i-5] = '\0';
 		   break;
 	   }
 	   else if(bufFIFO[i]=='+')line[i-5] = ' ';
 	   else line[i-5] = bufFIFO[i];
+   }*/
+   
+  for(int i =0; i < bytes_read; i++){
+	   if(bufFIFO[i] == '='){
+		   i++;
+		   while(bufFIFO[i] != '&' && i < bytes_read){
+			  line[contLine] = bufFIFO[i];
+			  i++;
+			  contLine++;
+		   }
+		   line[contLine]  = ' ';
+		   contLine++;
+	   }
    }
+   
+   line[contLine-1]  = '\0';
+   
    printf("TUTTO %s\n", line);
    
+   if(line[0] == 'q') break;
    
 	
     shell_execute(shell_split_line(line));
    
    
-    
+    for(int i = 0; i< 100; i++){
+		line[i] = "\0";
+	}
+	}
     return 1;
 }
 
