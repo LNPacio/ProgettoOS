@@ -68,8 +68,7 @@ void route()
     {
         printf("HTTP/1.1 200 OK\r\n\r\n");
         printf("<html>");
-        printf("Wow, seems that you POSTed %s bytes.<br>", payload);
-        printf("Fetch the data using `payload` variable.<br>");
+        printf("ARDUINO: <textarea rows=\"11\" cols=\"50\"> %s</textarea><br>", payload_read);
         printf("<form action=\"/form\" method=\"get\">");
         printf("<button name=\"\" value=\"\">Torna Indietro</button>");
         printf("</form></html>");

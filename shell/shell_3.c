@@ -35,8 +35,9 @@ void writeMsg(int fd, char* bufFIFO, int size);
 //fifo
 int echo_fifo, client_fifo;
 char bufFIFO[1024];
-//char* quit_command = QUIT_COMMAND;
-size_t quit_command_len;
+
+char strtingRet[512];
+
 
 //dichiarazione variabili globali
 char device_name[16];
@@ -97,23 +98,25 @@ int shell_num_builtins() {
 }
 
 int shell_read_from_server(char **args){
+  char* quit_command = QUIT_COMMAND;
+  size_t quit_command_len;
 	while(1){
 	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
 
     bufFIFO[bytes_read] = '\0';
     printf("%s", bufFIFO);
-    
+
     char line[256];
     int contLine=0;
    /*for(int i = 5; i < bytes_read; i++){
-	   if(bufFIFO[i]=='&'){ 
+	   if(bufFIFO[i]=='&'){
 		   line[i-5] = '\0';
 		   break;
 	   }
 	   else if(bufFIFO[i]=='+')line[i-5] = ' ';
 	   else line[i-5] = bufFIFO[i];
    }*/
-   
+
   for(int i =0; i < bytes_read; i++){
 	   if(bufFIFO[i] == '='){
 		   i++;
@@ -126,19 +129,24 @@ int shell_read_from_server(char **args){
 		   contLine++;
 	   }
    }
-   
+
    line[contLine-1]  = '\0';
-   
+
    printf("TUTTO %s\n", line);
-   
+
    if(line[0] == 'q') break;
-   
-	
+
+
     shell_execute(shell_split_line(line));
-   
-   
-    for(int i = 0; i< 100; i++){
-		line[i] = "\0";
+
+    printf("STRINGRET: %s \n",strtingRet);
+    sprintf(bufFIFO,strtingRet,'\r');
+    writeMsg(client_fifo, bufFIFO, strlen(bufFIFO));
+
+
+    for(int i = 0; i< 256; i++){
+		line[i] = '\0';
+		strtingRet[i] = '\0';
 	}
 	}
     return 1;
@@ -449,7 +457,7 @@ int shell_help(char **args)
 
 int shell_quit(char **args)
 {
- 
+
   close(tty_fd);
 
   return 0;
@@ -600,10 +608,13 @@ printf("                           ,---.\n                          /    |\n    
 }
 
 void readFromArduino(){
+  
 	int gand=0;
+  int i=1;
 	while(read(tty_fd,&c,1)<1);
 		printf("\nARDUINO: ");
 		printf("%c", c);
+    strtingRet[0]=c;
 		if(c=='Y'){
 			gand=1;
 
@@ -611,6 +622,8 @@ void readFromArduino(){
 		while(c != '\r' ){
 			if(read(tty_fd,&c,1)>0){
 				printf("%c", c);
+        strtingRet[i]=c;
+        i++;
 			}
 		}
 		if(gand){
@@ -643,7 +656,7 @@ int main(int argc, char **argv){
     printf("\t |_____/|_| |_| |_|\\__,_|_|   \\__| |_|  |_|\\___/ \\__,_|___/\\___|\n");
     printf("\n");
     printf("\n");
-    
+
     //printf("Please start with %s /dev/ttyS1 (for example)\n",argv[0]);
 
         memset(&tio,0,sizeof(tio));
@@ -653,63 +666,63 @@ int main(int argc, char **argv){
         tio.c_lflag=0;
         tio.c_cc[VMIN]=1;
         tio.c_cc[VTIME]=5;
-        
-        
-		
+
+
+
         tty_fd=open("/dev/ttyACM0", O_RDWR |O_NOCTTY);
         if(tty_fd < 0) printf("Hai sbracchiato vero? Attendi...\n");
         while(tty_fd < 0 ){
 			sleep(1);
 			tty_fd=open("/dev/ttyACM0", O_RDWR );
-			
+
 		}
         printf("\n");
         cfsetospeed(&tio,B19200);            // 19200 baud
         cfsetispeed(&tio,B19200);            // 19200 baud
 
         tcsetattr(tty_fd,TCSANOW,&tio);
-        
-        
-        int ret = unlink(ECHO_FIFO_NAME);
+
+
+    int ret = unlink(ECHO_FIFO_NAME);
 		//if(ret) handle_error("Cannot unlink Echo FIFO");
 		ret = unlink(CLNT_FIFO_NAME);
 		//if(ret) handle_error("Cannot unlink Client FIFO");
-        
-        ret = mkfifo(ECHO_FIFO_NAME, 0666);
+
+    ret = mkfifo(ECHO_FIFO_NAME, 0666);
 		if(ret) handle_error("Cannot create Echo FIFO");
 		ret = mkfifo(CLNT_FIFO_NAME, 0666);
 		if(ret) handle_error("Cannot create Client FIFO");
-        
-        
+
+
         pid_t papi= getpid();
-        
+
         pid_t pid = fork();
-        
+
         if(pid < 0){
 			printf("Errore nella fork\n");
 			EXIT_FAILURE;
 		}
-		
+
 		if(pid == 0) startArduinoServer(papi);
-        
+
         else{
 			int ret;
 			//quit_command_len = strlen(quit_command);
 			echo_fifo = open(ECHO_FIFO_NAME, O_RDONLY);
 			if(echo_fifo == -1) handle_error("Cannot open Echo FIFO for reading");
-			//client_fifo = open(CLNT_FIFO_NAME, O_WRONLY);
-			//if(client_fifo == -1) handle_error("Cannot open Client FIFO for writing");
-			
-			
-			
-			
+			client_fifo = open(CLNT_FIFO_NAME, O_WRONLY);
+			if(client_fifo == -1) handle_error("Cannot open Client FIFO for writing");
+
+
+
+
 			shell_loop();
-			
+
 			cleanFIFOs(echo_fifo, client_fifo);
-			
+
 			kill(pid, 1);
 			//wait();
-		
+
 		return EXIT_SUCCESS;
 		}
 }

@@ -19,6 +19,9 @@ char    *method,    // "GET" or "POST"
 char    *payload;     // for POST
 int      payload_size;
 
+char     payload_read[516];     // for POST
+int      payload_read_size;
+
 char *request_header(const char* name);
 
 // user shall implement this function

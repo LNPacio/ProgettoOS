@@ -43,25 +43,22 @@ void writeMsg(int fd, char* bufFIFO, int size);
 
 
 void serve_forever(const char *PORT, pid_t papi)
-{	
+{
 	int ret;
     quit_command_len = strlen(quit_command);
-    
+
 
     // Create the two FIFOs
+
+
     
-    
-    echo_fifo = open(ECHO_FIFO_NAME, O_WRONLY);
-    if(echo_fifo == -1) handle_error("Cannot open Echo FIFO for writing");
-    //client_fifo = open(CLNT_FIFO_NAME, O_RDONLY);
-    //if(client_fifo) handle_error("Cannot open Client FIFO for reading");
-    
+
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
-    char c;    
-    
+    char c;
+
     int slot=0;
-    
+
     printf(
             "Server started %shttp://127.0.0.1:%s%s\n",
             "\033[92m",PORT,"\033[0m"
@@ -72,13 +69,18 @@ void serve_forever(const char *PORT, pid_t papi)
     for (i=0; i<CONNMAX; i++)
         clients[i]=-1;
     startServer(PORT);
-    
+
     // Ignore SIGCHLD to avoid zombie threads
     signal(SIGCHLD,SIG_IGN);
 
     // ACCEPT connections
     while (__getpgid(papi))
     {
+		echo_fifo = open(ECHO_FIFO_NAME, O_WRONLY);
+		if(echo_fifo == -1) handle_error("Cannot open Echo FIFO for writing");
+		client_fifo = open(CLNT_FIFO_NAME, O_RDONLY);
+		if(client_fifo == -1) handle_error("Cannot open Client FIFO for reading");
+		
         addrlen = sizeof(clientaddr);
         clients[slot] = accept (listenfd, (struct sockaddr *) &clientaddr, &addrlen);
 
@@ -91,13 +93,22 @@ void serve_forever(const char *PORT, pid_t papi)
             if ( fork()==0 )
             {
                 respond(slot);
+                int ret = close(echo_fifo);
+				if(ret) handle_error("Cannot close Echo FIFO");
+				ret = close(client_fifo);
+				if(ret) handle_error("Cannot close Client FIFO");
                 exit(0);
+                
             }
-            
+
         }
 
         while (clients[slot]!=-1) slot = (slot+1)%CONNMAX;
     }
+		ret = close(echo_fifo);
+		if(ret) handle_error("Cannot close Echo FIFO");
+		ret = close(client_fifo);
+		if(ret) handle_error("Cannot close Client FIFO");
 }
 
 //start server
@@ -171,10 +182,10 @@ void respond(int n)
 
         method = strtok(buf,  " \t\r\n");
         uri    = strtok(NULL, " \t");
-        prot   = strtok(NULL, " \t\r\n"); 
+        prot   = strtok(NULL, " \t\r\n");
 
         fprintf(stderr, "\x1b[32m + [%s] %s\x1b[0m\n", method, uri);
-        
+
         if (qs = strchr(uri, '?'))
         {
             *qs++ = '\0'; //split URI
@@ -196,15 +207,21 @@ void respond(int n)
             if (t[1] == '\r' && t[2] == '\n') break;
         }
         t = strtok(NULL, "\r\n"); // now the *t shall be the beginning of user payload
-        t2 = request_header("Content-Length"); // and the related header if there is  
+        t2 = request_header("Content-Length"); // and the related header if there is
         payload = t;
         payload_size = t2 ? atol(t2) : (rcvd-(t-buf));
-        
-        if(method[0] == 'P'){
-			payload[payload_size]= '\n';
-			sprintf(bufFIFO,payload,quit_command);
-			writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
-			
+
+      if(method[0] == 'P'){
+				payload[payload_size]= '\n';
+				sprintf(bufFIFO,payload,quit_command);
+				writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
+
+
+
+			int bytes_read = readOneByOne(client_fifo, bufFIFO, '\r');
+		  	bufFIFO[bytes_read] = '\0';
+		  	printf("Ricevuto dalla shell: %s \n", bufFIFO);
+		  	sprintf(payload_read,bufFIFO,'\r');
 		}
 
         // bind clientfd to stdout, making it easier to write
@@ -214,7 +231,7 @@ void respond(int n)
 
         // call router
         route();
-       
+
 
         // tidy up
         fflush(stdout);
