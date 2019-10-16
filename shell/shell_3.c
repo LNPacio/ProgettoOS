@@ -149,7 +149,7 @@ int shell_read_from_server(char **args){
 		line[i] = '\0';
 		strtingRet[i] = '\0';
 	}
-  if (uit)break;
+    if(uit)break;
 	}
     return 1;
 }

@@ -48,15 +48,12 @@ void serve_forever(const char *PORT, pid_t papi)
     quit_command_len = strlen(quit_command);
 
 
-    // Create the two FIFOs
-
-
     
 
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
     char c;
-
+	clientaddr.sin_addr.s_addr = inet_addr("10.90.24.212");
     int slot=0;
 
     printf(
