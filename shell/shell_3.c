@@ -135,13 +135,19 @@ int shell_read_from_server(char **args){
 
    printf("TUTTO %s\n", line);
 
-   if(line[0] == 'q') uit=1;
+   if(line[0] == 'q'){ 
+	   uit=1;
+	   char quitcom[5];
+	   quitcom[1] = 'q'; quitcom[0] = 'u'; quitcom[0] = 'i'; quitcom[0] = 't'; quitcom[0] = '\r';
+	   sprintf(bufFIFO,quitcom,'\r');
+   }
 
 
-    shell_execute(shell_split_line(line));
-
-    printf("STRINGRET: %s \n",strtingRet);
-    sprintf(bufFIFO,strtingRet,'\r');
+     if(line[0] != 'q'){
+		 shell_execute(shell_split_line(line));
+		 printf("STRINGRET: %s \n",strtingRet);
+		sprintf(bufFIFO,strtingRet,'\r');
+	}
     writeMsg(client_fifo, bufFIFO, strlen(bufFIFO));
 
 
@@ -705,7 +711,10 @@ int main(int argc, char **argv){
 			EXIT_FAILURE;
 		}
 
-		if(pid == 0) startArduinoServer(papi);
+		if(pid == 0){
+			//system("gnome-terminal");
+			startArduinoServer(papi);
+		}
 
         else{
 			int ret;
