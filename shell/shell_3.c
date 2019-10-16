@@ -98,6 +98,7 @@ int shell_num_builtins() {
 }
 
 int shell_read_from_server(char **args){
+  int uit=0;
   char* quit_command = QUIT_COMMAND;
   size_t quit_command_len;
 	while(1){
@@ -134,7 +135,7 @@ int shell_read_from_server(char **args){
 
    printf("TUTTO %s\n", line);
 
-   if(line[0] == 'q') break;
+   if(line[0] == 'q') uit=1;
 
 
     shell_execute(shell_split_line(line));
@@ -148,6 +149,7 @@ int shell_read_from_server(char **args){
 		line[i] = '\0';
 		strtingRet[i] = '\0';
 	}
+  if (uit)break;
 	}
     return 1;
 }
@@ -608,7 +610,7 @@ printf("                           ,---.\n                          /    |\n    
 }
 
 void readFromArduino(){
-  
+
 	int gand=0;
   int i=1;
 	while(read(tty_fd,&c,1)<1);
