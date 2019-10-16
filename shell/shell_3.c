@@ -60,7 +60,7 @@ char *help_com[]={  "set_name\t\t\t\t\t will set a name to your device \neg: set
   "help\t\t\t\t\t\t to see this mindblowing tutorial",
   "reset\t\t\t\t\t\t if you want to start as nothing ever happened (on your arduino device)",
   "quit\t\t\t\t\t\t will make us sad but thats life..",
-  "read_from_server"};
+  "read_from_server\t\t\t\t will start reading from server on your modem ip on port 12913"};
 char *builtin_str[] = {
   "set_name",
   "set_pwm_name",
@@ -102,21 +102,19 @@ int shell_read_from_server(char **args){
   char* quit_command = QUIT_COMMAND;
   size_t quit_command_len;
 	while(1){
+	
 	int bytes_read = readOneByOne(echo_fifo, bufFIFO, '\n');
 
     bufFIFO[bytes_read] = '\0';
-    printf("%s", bufFIFO);
+    
 
     char line[256];
     int contLine=0;
-   /*for(int i = 5; i < bytes_read; i++){
-	   if(bufFIFO[i]=='&'){
-		   line[i-5] = '\0';
-		   break;
-	   }
-	   else if(bufFIFO[i]=='+')line[i-5] = ' ';
-	   else line[i-5] = bufFIFO[i];
-   }*/
+    //pulizia
+    for(int i = 0; i< 256; i++){
+		line[i] = '\0';
+		strtingRet[i] = '\0';
+	}
 
   for(int i =0; i < bytes_read; i++){
 	   if(bufFIFO[i] == '='){
@@ -133,8 +131,6 @@ int shell_read_from_server(char **args){
 
    line[contLine-1]  = '\0';
 
-   printf("TUTTO %s\n", line);
-
    if(line[0] == 'q'){ 
 	   uit=1;
 	   char quitcom[5];
@@ -145,16 +141,12 @@ int shell_read_from_server(char **args){
 
      if(line[0] != 'q'){
 		 shell_execute(shell_split_line(line));
-		 printf("STRINGRET: %s \n",strtingRet);
+		 
 		sprintf(bufFIFO,strtingRet,'\r');
 	}
     writeMsg(client_fifo, bufFIFO, strlen(bufFIFO));
 
-
-    for(int i = 0; i< 256; i++){
-		line[i] = '\0';
-		strtingRet[i] = '\0';
-	}
+	
     if(uit)break;
 	}
     return 1;
@@ -712,8 +704,8 @@ int main(int argc, char **argv){
 		}
 
 		if(pid == 0){
-			//system("gnome-terminal");
-			startArduinoServer(papi);
+			system("gnome-terminal -- ./startArduinoServer --");
+			//startArduinoServer(papi);
 		}
 
         else{
@@ -730,7 +722,7 @@ int main(int argc, char **argv){
 			shell_loop();
 
 			cleanFIFOs(echo_fifo, client_fifo);
-
+			printf("Colosing...\n");
 			kill(pid, 1);
 			//wait();
 

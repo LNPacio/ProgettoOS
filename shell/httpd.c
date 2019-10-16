@@ -42,7 +42,7 @@ void writeMsg(int fd, char* bufFIFO, int size);
 
 
 
-void serve_forever(const char *PORT, pid_t papi)
+void serve_forever(const char *PORT)
 {
 	int ret;
     quit_command_len = strlen(quit_command);
@@ -71,7 +71,7 @@ void serve_forever(const char *PORT, pid_t papi)
     signal(SIGCHLD,SIG_IGN);
 
     // ACCEPT connections
-    while (__getpgid(papi))
+    while (1)
     {
 		echo_fifo = open(ECHO_FIFO_NAME, O_WRONLY);
 		if(echo_fifo == -1) handle_error("Cannot open Echo FIFO for writing");
@@ -209,15 +209,12 @@ void respond(int n)
         payload_size = t2 ? atol(t2) : (rcvd-(t-buf));
 
       if(method[0] == 'P'){
-				payload[payload_size]= '\n';
-				sprintf(bufFIFO,payload,quit_command);
-				writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
-
-
+			payload[payload_size]= '\n';
+			sprintf(bufFIFO,payload,quit_command);
+			writeMsg(echo_fifo, bufFIFO, strlen(bufFIFO));
 
 			int bytes_read = readOneByOne(client_fifo, bufFIFO, '\r');
 		  	bufFIFO[bytes_read] = '\0';
-		  	printf("Ricevuto dalla shell: %s \n", bufFIFO);
 		  	sprintf(payload_read,bufFIFO,'\r');
 		}
 

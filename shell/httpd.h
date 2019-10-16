@@ -7,7 +7,7 @@
 
 //Server control functions
 
-void serve_forever(const char *PORT, pid_t papi);
+void serve_forever(const char *PORT);
 
 // Client request
 
