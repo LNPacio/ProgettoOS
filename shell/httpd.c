@@ -53,7 +53,7 @@ void serve_forever(const char *PORT)
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
     char c;
-	clientaddr.sin_addr.s_addr = inet_addr("10.90.24.212");
+	clientaddr.sin_addr.s_addr = inet_addr("192.168.31.6");
     int slot=0;
 
     printf(

@@ -704,7 +704,7 @@ int main(int argc, char **argv){
 		}
 
 		if(pid == 0){
-			system("gnome-terminal -- ./startArduinoServer --");
+			system("gnome-terminal -- ./startArduinoServer");
 			//startArduinoServer(papi);
 		}
 
@@ -723,7 +723,7 @@ int main(int argc, char **argv){
 
 			cleanFIFOs(echo_fifo, client_fifo);
 			printf("Colosing...\n");
-			kill(pid, 1);
+			kill(pid, SIGTERM);
 			//wait();
 
 		return EXIT_SUCCESS;
