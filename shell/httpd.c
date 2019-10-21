@@ -40,6 +40,8 @@ size_t quit_command_len;
 int readOneByOne(int fd, char* bufFIFO, char separator);
 void writeMsg(int fd, char* bufFIFO, int size);
 
+const char *ADD = "192.168.43.160";
+
 
 
 void serve_forever(const char *PORT)
@@ -53,12 +55,12 @@ void serve_forever(const char *PORT)
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
     char c;
-	clientaddr.sin_addr.s_addr = inet_addr("192.168.31.6");
+	clientaddr.sin_addr.s_addr = inet_addr(ADD);
     int slot=0;
 
     printf(
-            "Server started %shttp://127.0.0.1:%s%s\n",
-            "\033[92m",PORT,"\033[0m"
+            "Server started %shttp://%s:%s%s\n",
+            "\033[92m",ADD,PORT,"\033[0m"
             );
 
     // Setting all elements to -1: signifies there is no client connected
